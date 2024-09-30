@@ -1,0 +1,397 @@
+<style>
+    .lineChartSection {
+        height: 10px;
+        width: 100%;
+    }
+
+    .winSection {
+        background-color: #28a745;
+        border-radius: 10px 0 0 10px;
+    }
+
+    .drawSection {
+        background-color: #ffc107;
+    }
+
+    .loseSection {
+        background-color: #dc3545;
+        border-radius: 0 10px 10px 0;
+    }
+
+    .winRateCard {
+        background-color: #2d2d2d;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+
+    .winRateCard h3 {
+        color: #FF6B00;
+        font-weight: bold;
+        font-size: 32px;
+    }
+
+    .winRateCard h4 {
+        font-weight: bold;
+        font-size: 24px;
+        margin-bottom: 0;
+    }
+
+    .winRateCard p {
+        font-size: 14px;
+        margin-bottom: 0;
+    }
+
+    .winRateCard p span {
+        font-weight: bold;
+        color: #FF6B00;
+        font-size: 16px;
+    }
+
+    .winRateChart h5 {
+        font-size: 20px;
+        margin-bottom: 0;
+        margin-top: 5px;
+    }
+
+    .mostWinsCard {
+        background-color: #2d2d2d;
+        border-radius: 10px;
+        padding: 20px;
+        width: 32%;
+    }
+
+    .mostWinsCard h3 {
+        color: #FF6B00;
+        font-weight: bold;
+        font-size: 32px;
+    }
+
+    .highestLeaderboardCard {
+        background-color: #2d2d2d;
+        border-radius: 10px;
+        padding: 20px;
+        width: 32%;
+    }
+
+    .highestLeaderboardCard h3 {
+        color: #FF6B00;
+        font-weight: bold;
+        font-size: 32px;
+    }
+
+    .highestLeaderboardCard h2 {
+        font-size: 20px;
+        margin-bottom: 0;
+        font-weight: bold;
+    }
+
+    .highestLeaderboardCard h4 {
+        font-size: 16px;
+        margin-bottom: 0;
+        color: #FF6B00;
+        z-index: 1;
+        margin-top: 10px;
+    }
+
+    .highestLeaderboardCard p {
+        font-size: 14px;
+        margin-bottom: 0;
+        color: #8a8a8a;
+        font-weight: bold;
+    }
+
+    .circle-containerCustom {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 175px;
+        height: 175px;
+        border-radius: 50%;
+        background-color: #2d2d2d;
+        position: relative;
+        border: 5px solid #FF6B00;
+        margin-top: 20px;
+    }
+
+    .circle-containerCustom::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        width: 120px;
+        height: 60px;
+        background-color: #2d2d2d;
+        border-radius: 50%;
+    }
+
+    .tournamentWinsCard {
+        background-color: #2d2d2d;
+        border-radius: 10px;
+        padding: 20px;
+        width: 32%;
+    }
+
+    .tournamentWinsCard h3 {
+        color: #FF6B00;
+        font-weight: bold;
+        font-size: 32px;
+    }
+
+    .podium {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        width: 100%;
+    }
+
+    .place {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 60px;
+        color: #fff;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .first {
+        height: 100px;
+        width: 32%;
+        background-color: #FFD700;
+    }
+
+    .podiumTimes {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        width: 100%;
+    }
+
+    .podiumTimes div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 32%;
+        color: #fff;
+        font-size: 16px;
+        gap: 5px;
+    }
+
+    .podiumTimes div span {
+        font-size: 18px;
+        font-weight: bold;
+        color: #FF6B00;
+    }
+
+    .outsidePodiumTimes {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        color: #fff;
+        font-size: 16px;
+        font-weight: bold;
+        margin-top: 10px;
+        gap: 10px;
+    }
+
+    .outsidePodiumTimes span {
+        font-size: 18px;
+        font-weight: bold;
+        color: #FF6B00;
+    }
+
+    .winRateOverTimeCard {
+        background-color: #2d2d2d;
+        border-radius: 10px;
+        padding: 20px;
+        width: 100%;
+        height: 270px;
+    }
+
+    #winRateChart {
+        width: 100% !important;
+        max-width: 100%;
+        height: 100%;
+    }
+</style>
+
+{% extends 'base.html' %}
+{% load translation_filters %}
+{% load math_filters %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+<div class="custom-alert fade show {{ message.tags }}">
+    <p>{{ message }}</p>
+    <button type="button" class="btn-close-custom" aria-label="{{"Sluiten"|translate:request }}">x</button>
+</div>
+{% endfor %}
+{% endif %}
+
+{% if game_stats.gamesPlayed > 0 %}
+<div class="container mt-3">
+    <h1>{{ "DASHBOARD"|translate:request }}</h1>
+    <div class="d-flex flex-column">
+        <div class="winRateCard">
+            <h3>W/L%</h3>
+            <div style="width: 100%;" class="d-flex justify-content-between align-items-end mb-2">
+                {% with winPercentage=game_stats.gamesWon|multiply:100|divide:game_stats.gamesPlayed|floatformat:2 %}
+                <h4>{{ winPercentage }}%</h4>
+                {% endwith %}
+                <p>{{ "Totaal aantal spellen gespeeld: "|translate:request }}<span>{{ game_stats.gamesPlayed }}</span></p>
+            </div>
+            <div class="d-flex align-items-center winRateChart" style="width: 100%;">
+                {% with winPercentage=game_stats.gamesWon|multiply:100|divide:game_stats.gamesPlayed %}
+                <div class="d-flex flex-column align-items-center" style="width: {{ winPercentage }}%;">
+                    <div class="lineChartSection winSection"></div>
+                    <h5 style="color: #28a745;">{{ game_stats.gamesWon }}</h5>
+                </div>
+                {% endwith %}
+                {% if game_stats.gamesDraw > 0 %}
+                {% with drawPercentage=game_stats.gamesDraw|multiply:100|divide:game_stats.gamesPlayed %}
+                <div class="d-flex flex-column align-items-center" style="width: {{ drawPercentage }}%;">
+                    <div class="lineChartSection drawSection"></div>
+                    <h5 style="color: #ffc107;">{{ game_stats.gamesDraw }}</h5>
+                </div>
+                {% endwith %}
+                {% endif %}
+                {% if game_stats.gamesLost > 0 %}
+                {% with losePercentage=game_stats.gamesLost|multiply:100|divide:game_stats.gamesPlayed %}
+                <div class="d-flex flex-column align-items-center" style="width: {{ losePercentage }}%;">
+                    <div class="lineChartSection loseSection"></div>
+                    <h5 style="color: #dc3545;">{{ game_stats.gamesLost }}</h5>
+                </div>
+                {% endwith %}
+                {% endif %}
+            </div>
+        </div>
+        <div class="d-flex justify-content-between" style="margin-top: 20px; align-items: stretch;">
+            <div class="mostWinsCard">
+                <h3>{{ "Meeste wins tegen"|translate:request }}</h3>
+                <div class="d-flex flex-column gap-3">
+                    {% for opponent in most_wins_against %}
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="{{ opponent.profile.profilePicture.url }}" alt="pfp" class="rounded-circle" height="50" width="50">
+                        <div class="d-flex flex-column ms-2">
+                            <h4 style="margin-bottom: 0;">{{ opponent.username }}</h4>
+                            <p style="margin-bottom: 0;">{{ "Wins: "|translate:request }} <span style="color: #FF6B00; font-weight: bold">{{ opponent.wins }}</span></p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="highestLeaderboardCard">
+                <h3>{{ "Hoogste positie"|translate:request }}</h3>
+                <div class="d-flex justify-content-between align-items-center mt-2" style=" height: 75%;">
+                    <div class="circle-containerCustom">
+                        <div style="width: 40%; height: 100%; text-align: center;"
+                            class="d-flex flex-column justify-content-center">
+                            <h2 style="margin-bottom: 0;">{{ "Meeste wins"|translate:request }}</h2>
+                            <p style="margin-bottom: 0;">{{ game_stats.gamesWon }} {{ "Wins"|translate:request }}</p>
+                            <h4 style="margin-bottom: 0;">#{{ mostWinsLeaderboardSpot }}</h4>
+                        </div>
+                    </div>
+                    <div class="circle-containerCustom">
+                        <div style="width: 40%; height: 100%; text-align: center;"
+                            class="d-flex flex-column justify-content-center">
+                            <h2 style="margin-bottom: 0;">{{ "Beste streak"|translate:request }}</h2>
+                            <p style="margin-bottom: 0;">{{ game_stats.highestWinStreak }} {{ "Wins"|translate:request }}</p>
+                            <h4 style="margin-bottom: 0;">#{{ highestWinStreakLeaderboardSpot }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tournamentWinsCard">
+                <h3>{{ "Tournament resultaten"|translate:request }}</h3>
+                <div class="d-flex justify-content-between align-items-center mt-2" style=" height: 90%;">
+                    <div class="d-flex flex-column justify-content-between align-items-center" style="width: 100%;">
+                        <div class="podium">
+                            <div class="place first">#1</div>
+                        </div>
+                        <div class="podiumTimes">
+                            <div><span>{{ game_stats.tournamentsWon }}</span></div>
+                        </div>
+                        <div class="outsidePodiumTimes">{{ "Totaal gespeelde tournooien:"|translate:request }}<span>{{ game_stats.tournamentsPlayed }}</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex justify-content-between" style="margin-top: 20px; align-items: stretch;">
+            <div class="winRateOverTimeCard">
+                <h3>{{ "Scores van de laatste spelletjes"|translate:request }}</h3>
+                <canvas id="winRateChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="container mt-3">
+    <!-- No games played yet message -->
+    <div class="alert alert-warning" role="alert">
+        <h4 class="alert-heading">{{ "Nog geen spellen gespeeld!"|translate:request }}</h4>
+        <p>{{ "Speel een spelletje om hier scores te zien"|translate:request }}</p>
+    </div>
+</div>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    function initChart() {
+        const ctx = document.getElementById('winRateChart').getContext('2d');
+        if (ctx) {
+            const winRateChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ labels|safe }},
+            datasets: [{
+                label: '',
+                data: {{ data|safe }},
+                fill: false,
+                borderColor: 'rgb(255, 159, 64)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                    bottom: 40
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        autoSkip: true,
+                        maxRotation: 0,
+                        minRotation: 0
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    max: 15
+                }
+            }
+        }
+        });
+        } else {
+            console.error('Could not find canvas element with id winRateChart');
+            setTimeout(initializeChart, 500);
+        }
+    }
+</script>
+
+{% endblock %}

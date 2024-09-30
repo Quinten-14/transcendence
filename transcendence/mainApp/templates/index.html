@@ -1,0 +1,87 @@
+<style>
+    .custom-alert {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1050;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, .1);
+        animation: slideIn 0.5s ease-out;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .custom-alert.error {
+        background-color: #ffdddd;
+        border-left: 6px solid #f44336;
+        color: black;
+    }
+
+    .custom-alert.success {
+        background-color: #ddffdd;
+        border-left: 6px solid #4CAF50;
+        color: black;
+    }
+
+    .custom-alert p {
+        margin: 0;
+        padding-right: 20px;
+    }
+
+    .btn-close-custom {
+        cursor: pointer;
+        background-color: transparent;
+        border: none;
+        font-size: 20px;
+        line-height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        color: black;
+        margin-right: 5px;
+    }
+
+    .btn-close-custom:hover {
+        color: #999;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+        }
+
+        to {
+            transform: translateX(0);
+        }
+    }
+</style>
+
+{% extends 'base.html' %}
+{% load translation_filters %}
+
+{% block title %}Homepage{% endblock %}
+
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+<div class="custom-alert fade show {{ message.tags }}">
+    <p>{{ message.message |translate:request }}</p>
+    <button type="button" onclick="closeAlert()" class="btn-close-custom" aria-label="Close">x</button>
+</div>
+{% endfor %}
+{% endif %}
+
+{% include 'game.html' %}
+
+<script>
+    function closeAlert() {
+        const alert = document.querySelector('.custom-alert');
+        if (alert) {
+            alert.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,323 @@
+<style>
+    .custom-alert {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1050;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, .1);
+        animation: slideIn 0.5s ease-out;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .custom-alert.error {
+        background-color: #ffdddd;
+        border-left: 6px solid #f44336;
+        color: black;
+    }
+
+    .custom-alert.success {
+        background-color: #ddffdd;
+        border-left: 6px solid #4CAF50;
+        color: black;
+    }
+
+    .custom-alert p {
+        margin: 0;
+        padding-right: 20px;
+    }
+
+    .btn-close-custom {
+        cursor: pointer;
+        background-color: transparent;
+        border: none;
+        font-size: 20px;
+        line-height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        color: black;
+        margin-right: 5px;
+    }
+
+    .btn-close-custom:hover {
+        color: #999;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+        }
+
+        to {
+            transform: translateX(0);
+        }
+    }
+
+    .scoreCard {
+        width: 100%;
+        border-radius: 10px;
+        background-color: #2d2d2d;
+        padding: 20px;
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .mentionCard {
+        width: 100%;
+        background-color: #2d2d2d;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        height: 136px;
+    }
+
+    .gameStatsCard {
+        width: 100%;
+        background-color: #2d2d2d;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+
+    .gameStatsCard h5 {
+        margin-bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .gameStatsCard h5 p {
+        margin-bottom: 0;
+        font-size: 14px;
+        display: flex;
+        gap: 5px;
+        align-items: center;
+    }
+
+    .gameStatsCard h5 p span {
+        color: #FF6B00;
+    }
+
+    .gameTimelineCard {
+        width: 49.3%;
+        background-color: #2d2d2d;
+        border-radius: 10px;
+        padding: 20px;
+        height: 433.60px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .gameTimelineCard .divider {
+        width: 5px;
+        height: 110px;
+        background-color: rgb(62, 62, 62);
+    }
+
+    .goalScored {
+        background-color: #3d3d3d;
+        border-radius: 10px;
+        padding: 10px;
+        text-align: right;
+    }
+
+    .goalScoredRight {
+        background-color: #3d3d3d;
+        border-radius: 10px;
+        padding: 10px;
+        text-align: left;
+    }
+
+    .goalScored h4 {
+        margin-bottom: 0;
+        font-size: 18px;
+    }
+
+    .goalScored h3 {
+        margin-bottom: 0;
+    }
+
+    .goalScored h3 span {
+        color: #FF6B00;
+        font-weight: bold;
+    }
+
+    .goalScoredRight h4 {
+        margin-bottom: 0;
+        font-size: 18px;
+    }
+
+    .goalScoredRight h3 {
+        margin-bottom: 0;
+    }
+
+    .goalScoredRight h3 span {
+        color: #FF6B00;
+        font-weight: bold;
+    }
+
+    .underScore p {
+        margin-bottom: 0;
+        font-size: 14px;
+        display: flex;
+        gap: 5px;
+        align-items: center;
+        font-weight: bold;
+        color: #6c6c6c;
+    }
+
+    .underScore p span {
+        color: #FF6B00;
+    }
+</style>
+
+{% extends 'base.html' %}
+{% load translation_filters %}
+{% load math_filters %}
+
+{% block title %}Homepage{% endblock %}
+
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+<div class="custom-alert fade show {{ message.tags }}">
+    <p>{{ message }}</p>
+    <button type="button" class="btn-close-custom" aria-label="Close">x</button>
+</div>
+{% endfor %}
+{% endif %}
+
+<div class="container mt-3">
+    <h1>{{ "Speloverzicht"|translate:request}}</h1>
+    <div class="scoreCard">
+        <div class="d-flex gap-3 align-items-center justify-content-between" style="width: 100%;">
+            <h5 style="margin-bottom: 0px;">{{ match.date|date:"d - m - Y" }}</h5>
+            <h5 style="margin-bottom: 0px;">{{ match.duration|timedelta_to_duration }}</h5>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-4" style="width: 100%;">
+            <div class=" d-flex align-items-center gap-3" style="width: 35%;">
+                <img height="50px" width="50px" class="rounded-circle"
+                    src="{{ match.player1.userprofile.profilePicture.url}}" alt="Player1 profile picture">
+                <h2 style="margin-bottom: 0px;">{{ match.player1.username }}</h2>
+            </div>
+            <div class="d-flex gap-3 align-items-center">
+                <h1 style="margin-bottom: 0;">{{ match.player1_score }}</h1>
+                <h2 style="margin-bottom: 0;">-</h2>
+                <h1 style="margin-bottom: 0;">{{ match.player2_score }}</h1>
+            </div>
+            <div class="d-flex align-items-center gap-3 justify-content-end" style="width: 35%;">
+                {% if match.is_player2_ai %}
+                <h2 style="margin-bottom: 0px;">AI</h2>
+                <img height="50px" width="50px" class="rounded-circle" src="../../media/defaults/default_profile.png"
+                    alt="Player2 profile picture">
+                {% else %}
+                <h2 style="margin-bottom: 0px;">{{ match.player2.username }}</h2>
+                <img height="50px" width="50px" class="rounded-circle"
+                    src="{{ match.player2.userprofile.profilePicture.url}}" alt="Player2 profile picture">
+                {% endif %}
+            </div>
+        </div>
+        <p style="margin-bottom: 0;">{{ match.typeGame }}</p>
+    </div>
+    <div class="d-flex justify-content-between" style="margin-top: 20px; width: 100%;">
+        <div class="d-flex flex-column" style="width: 49.3%;">
+            <div class="mentionCard">
+                <h1>{{ message_title|translate:request }}</h1>
+                <p>{{ message|translate:request }}</p>
+            </div>
+            <div class="gameStatsCard">
+                <h3>{{ "Spelstatistieken"|translate:request}}</h3>
+                <h5>{{ "Spelduur: "|translate:request}} <p><span><span>{{ match.duration|timedelta_to_duration}}</span></span> {{ "minuten"|translate:request}}</p>
+                </h5>
+                <h5>{{ "Langste rally: "|translate:request}}<p><span>{{ match.longest_rally }}</span> {{ "punten"|translate:request}}</p>
+                </h5>
+                <h5>{{ "Langste goal streak: "|translate:request}}<p><span>{{ longest_goal_streak }}</span> {{ " goals"|translate:request}}</p>
+                </h5>
+                <h5>{{ "Langste tijd tussen goals: "|translate:request}} <p><span>{{ longest_time_between_goals }}</span> {{"minuten"|translate:request}}</p>
+                </h5>
+                <h5>{{ "Aantal kampioenspunten: "|translate:request}}
+                    <p>
+                        <span>{{ player1_position|default:"No wins yet"|stringformat:"s" }}</span> & 
+                        <span>{{ player2_position|default:"No wins yet"|stringformat:"s" }}</span>
+                    </p>
+                </h5>
+                </h5>
+                <h5>{{ "Type spel: "|translate:request}} <p><span>{{ match.typeGame }}</span> game</p>
+            </div>
+        </div>
+        <div class="gameTimelineCard">
+            <h3 class="mb-3">{{ "Spel tijdlijn"|translate:request}}</h3>
+
+            {% for point in timeline %}
+            <div class="d-flex justify-content-between align-items-center" style="width: 100%;">
+                {% if point.is_player1 %}
+                <div style="width: 45%;">
+                    <div class="d-flex gap-2 justify-content-end align-items-center goalScored">
+                        <div>
+                            <h4>{{ point.scorer }}</h4>
+                            <h3>Goal <span>{{ point.player1_goals }}-{{ point.player2_goals }}</span></h3>
+                        </div>
+                        <img src="{{ match.player1.userprofile.profilePicture.url }}"
+                            alt="{{ match.player1.username }} profile picture"
+                            style="height: 50px; width: 50px; border-radius: 50%;">
+                    </div>
+                    <div class="d-flex justify-content-between px-3 py-1 underScore">
+                        <p>Rally: <span>{{ point.rally }}</span></p>
+                        <p>Time: <span>{{ point.time }}</span> sec</p>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div style="width: 45%;"></div>
+                {% else %}
+                <div style="width: 45%;"></div>
+                <div class="divider"></div>
+                <div style="width: 45%;">
+                    <div class="d-flex gap-2 align-items-center goalScoredRight">
+                        <img src="{% if match.is_player2_ai %}../../media/defaults/default_profile.png{% else %}{{ match.player2.userprofile.profilePicture.url }}{% endif %}"
+                            alt="{{ point.scorer }} profile picture"
+                            style="height: 50px; width: 50px; border-radius: 50%;">
+                        <div>
+                            <h4>{{ point.scorer }}</h4>
+                            <h3>Goal <span>{{ point.player1_goals }}-{{ point.player2_goals }}</span></h3>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between px-3 py-1 underScore">
+                        <p>Rally: <span>{{ point.rally }}</span></p>
+                        <p>Time: <span>{{ point.time }}</span> sec</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const btnClose = document.querySelectorAll('.btn-close-custom');
+
+        btnClose.forEach(button => {
+            button.addEventListener('click', () => {
+                console.log('Button clicked');
+                const alert = button.closest('.custom-alert');
+                if (alert) {
+                    alert.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
