@@ -297,10 +297,14 @@
                                     resultList.style.display = 'block';
                                     data.forEach(user => {
                                         let li = document.createElement('li');
-                                        li.innerHTML = `<a data-url="/user/${user.username}">${user.username}</a>`;
-                                        li.addEventListener('click', function () {
+                                        let a = document.createElement('a');
+                                        a.textContent = user.username;
+                                        a.setAttribute('data-url', `/user/${user.username}`);
+                                        a.href = `javascript:void(0);`;
+                                        a.addEventListener('click', function () {
                                             loadContent(`/user/${user.username}`);
                                         });
+                                        li.appendChild(a);
                                         resultList.appendChild(li);
                                     });
                                 })

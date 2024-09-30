@@ -756,8 +756,11 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        console.log('Playing status updated successfully');
-                        loadContent(window.location.pathname);
+                        if (data.tournament_over)
+                            loadContent(`/`);
+                        else
+                            console.log('Playing status updated successfully');
+                            loadContent(window.location.pathname);
                     } else {
                         console.error('Failed to update playing status');
                     }

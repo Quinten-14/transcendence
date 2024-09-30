@@ -7,11 +7,11 @@ def translate_text(text, target_language):
         
     if target_language == 'nl':
         return text
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r"/app/mainApp/googlekey.json"
-    translate_client = translate.Client()
+    # os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r"/app/mainApp/googlekey.json"
+    # translate_client = translate.Client()
 
-    if target_language == 'en':
-        target_language = 'en-gb'
-    result = translate_client.translate(text, target_language=target_language)
-    return result["translatedText"]
+    # if target_language == 'en':
+    #     target_language = 'en-gb'
+    # result = translate_client.translate(text, target_language=target_language)
+    # return result["translatedText"]
 

@@ -22,6 +22,7 @@ import random
 from django.http import JsonResponse
 from .models import Tournament, TournamentParticipant
 from django.views.decorators.http import require_POST
+import re
 
 def home(request):
     context = {}
@@ -87,11 +88,17 @@ def addParticipant(request):
         participantUsername = request.POST.get('username')
         participantPassword = request.POST.get('password', None)  # Password is optional
 
+        pattern = re.compile(r'^[a-zA-Z0-9@\-_]+$')
+        if not pattern.match(participantUsername):
+            return JsonResponse({'error': 'Invalid username. Please try again.'})
+
         # Check if the user is OTP-verified in this session
         otp_verified_user_id = request.session.get('otp_verified_user', None)
         otp_verified = request.session.get('otp_verified', False)
 
         if participantPassword:
+            if not pattern.match(participantPassword):
+                return JsonResponse({'error': 'Invalid password. Please try again.'})
             # Authenticate using password
             participant = authenticate(username=participantUsername, password=participantPassword)
         elif otp_verified and otp_verified_user_id:
@@ -134,6 +141,10 @@ def startTournament(request):
         max_time = request.POST.get('maxTime')
         max_score = request.POST.get('maxScore')
 
+        pattern = re.compile(r'^[a-zA-Z0-9@\-_]+$')
+        if not pattern.match(tournament_name):
+            return JsonResponse({'error': 'Invalid tournament name. Please try again.'})
+
         
         if max_time is None or max_score is None:
             return JsonResponse({'error': 'Missing max_time or max_score.'}, status=400)
@@ -170,6 +181,9 @@ def startTournament(request):
 import json
 @login_required
 def generateTournamentBracket(request, tournament_id):
+    if not Tournament.objects.filter(id=tournament_id).exists():
+        return redirect('home')
+
     tournament = Tournament.objects.get(id=tournament_id)
     session_key = f'tournament_{tournament_id}_bracket'
 
@@ -190,6 +204,9 @@ def generateTournamentBracket(request, tournament_id):
 
 @login_required
 def playTournamentMatch(request, tournament_id, match_number):
+    if not Tournament.objects.filter(id=tournament_id).exists():
+        return redirect('home')
+
     tournament = Tournament.objects.get(id=tournament_id)
     session_key = f'tournament_{tournament_id}_bracket'
     bracket = request.session.get(session_key)
@@ -262,6 +279,8 @@ def updatePlayingStatus(request, tournament_id, match_id):
                 tournament.winner = user
 
                 tournament.save()
+
+                return JsonResponse({'status': 'success', 'tournament_over': True})
 
             return JsonResponse({'status': 'success'})
     return JsonResponse({'status': 'error'}, status=400)

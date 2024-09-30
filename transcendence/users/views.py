@@ -25,6 +25,7 @@ from requests.auth import HTTPBasicAuth
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import SetPasswordForm
 import jwt
+import re
 
 def login_user(request):
     if request.user.is_authenticated:
@@ -33,6 +34,13 @@ def login_user(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
+
+        pattern = re.compile(r'^[a-zA-Z0-9@\-_]+$')
+
+        if not pattern.match(username) or not pattern.match(password):
+            messages.error(request, 'No special characters allowed except @, -, _.')
+            return redirect('login')
+
         user = authenticate(request, username=username, password=password)
         if user is not None:
             user_profile = UserProfile.objects.get(user=user)
@@ -76,6 +84,7 @@ def logout_user(request):
     return redirect('home')
 
 def signup_user(request):
+    pattern = re.compile(r'^[a-zA-Z0-9@\-_]+$')
     if request.user.is_authenticated:
         messages.error(request, 'You are already logged in.')
         return redirect('home')
@@ -97,6 +106,10 @@ def signup_user(request):
 
         if User.objects.filter(username=username).exists():
             messages.error(request, 'That username is already taken.')
+            return redirect('signup')
+
+        if not (pattern.match(first_name) and pattern.match(last_name) and pattern.match(username) and pattern.match(password) and pattern.match(password2)):
+            messages.error(request, 'No special characters allowed except @, -, _.')
             return redirect('signup')
 
         try:
@@ -314,14 +327,21 @@ def player2auth(request):
     username = request.POST.get('username')
     password = request.POST.get('password')
 
+
+    pattern = re.compile(r'^[a-zA-Z0-9@\-_]+$')
+
     try:
         if password is not None:
+            if not pattern.match(username) or not pattern.match(password):
+                return JsonResponse({'status': 'error', 'message': 'No special characters allowed except @, -, _.'})
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 return JsonResponse({'status': True})
             else:
                 return JsonResponse({'status': 'authentication_failed'})
         else:
+            if not pattern.match(username):
+                return JsonResponse({'status': 'error', 'message': 'No special characters allowed except @, -, _.'})
             user = User.objects.get(username=username)
             user_profile = UserProfile.objects.get(user=user)
             totp = pyotp.TOTP(user_profile._two_factor_secret)
@@ -337,8 +357,14 @@ def confirmOtp(request):
     code = request.POST.get('code')
     username = request.POST.get('username')
 
+
+    pattern = re.compile(r'^[a-zA-Z0-9@\-_]+$')
+
     if not code or not username:
         return JsonResponse({'status': 'error', 'message': 'Missing code or username'})
+
+    if not pattern.match(username) or not pattern.match(code):
+        return JsonResponse({'status': 'error', 'message': 'No special characters allowed except @, -, _.'})
     
     try:
         user = User.objects.get(username=username)
@@ -446,7 +472,13 @@ def fillResetPassEmail(request):
     
     if request.method == 'POST':
         email = request.POST.get('resetEmail')
+
+        pattern = re.compile(r'^[a-zA-Z0-9@\-_]+$')
+        
         if email:
+            if not pattern.match(email):
+                messages.error(request, 'No special characters allowed except @, -, _.')
+                return redirect('fillResetPassEmail')
             try:
                 user = User.objects.get(email=email)
             except User.DoesNotExist:
