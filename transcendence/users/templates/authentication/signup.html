@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>{% block title %}{% endblock %}</title>
+  {% comment %}
+  {% load bootstrap5 %}
+  {% endcomment %}
+  {% load django_bootstrap5 %}
+  {% bootstrap_css %}
+  {% bootstrap_javascript %}
+</head>
+
+<style>
+  body {
+    background: #FF6B00;
+    background: linear-gradient(to right, #fe7d21, #ffb27f);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+
+  .btn-login {
+    font-size: 0.9rem;
+    letter-spacing: 0.05rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .btn-orange {
+    background-color: #FF6B00;
+    color: white;
+  }
+
+  .hoverEffect {
+    color: black;
+    transition: 0.3s;
+  }
+
+  .hoverEffect:hover {
+    color: #FF6B00;
+  }
+</style>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+        <div class="card border-0 shadow rounded-3 my-5">
+          <div class="card-body p-4 p-sm-5">
+            <h5 class="card-title text-center mb-3 fw-bold fs-2">Sign Up</h5>
+            {% if messages %}
+            <div class="alert-container bg-danger text-white rounded">
+              {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              {% endfor %}
+            </div>
+            {% endif %}
+            <form action="" method="POST">
+              {% csrf_token %}
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="floatingFirstName" name="firstName" placeholder="John">
+                    <label for="floatingFirstName">First Name</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating mb-3">
+                    <input type="text" class="form-control" id="floatingLastName" name="lastName" placeholder="Doe">
+                    <label for="floatingLastName">Last Name</label>
+                  </div>
+                </div>
+              </div>
+              <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="floatingInput" name="username" placeholder="Joe">
+                <label for="floatingInput">Username</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="floatingInput" name="email" placeholder="Joe@gmail.com">
+                <label for="floatingInput">Email</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input type="password" class="form-control" id="floatingPassword" name="password"
+                  placeholder="Password">
+                <label for="floatingPassword">Password</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input type="password" class="form-control" id="floatingPassword" name="password2"
+                  placeholder="Password">
+                <label for="floatingPassword">Confirm Password</label>
+              </div>
+              <div class="d-grid mt-3 mb-2">
+                <button class="btn btn-orange btn-login text-uppercase fw-bold" type="submit">Sign up</button>
+              </div>
+            </form>
+            <a class="text-decoration-none hoverEffect" href="{% url 'login' %}">Already have an account?</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

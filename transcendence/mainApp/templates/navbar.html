@@ -1,0 +1,412 @@
+{% load translation_filters %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    {% comment %}
+    {% load bootstrap5 %}
+    {% endcomment %}
+    {% load django_bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+</head>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: #242424;
+        color: white;
+    }
+
+    .profileSection img {
+        width: 50px;
+        height: 50px;
+        margin-right: 10px;
+    }
+
+    .nav-link {
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .nav-link i {
+        margin-right: 8px;
+    }
+
+    .nav-link:hover {
+        color: #FF6B00;
+    }
+
+    .searchBar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    #searchResults {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: #363636;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        display: none;
+    }
+
+    #searchResults li {
+        list-style: none;
+        margin: 0px;
+        border-bottom: 1px solid #eee;
+    }
+
+    #searchResults li:last-child {
+        border-bottom: none;
+    }
+
+    #searchResults li a {
+        text-decoration: none;
+        color: white;
+        display: block;
+    }
+
+    #searchResults li a:hover {
+        background-color: #131313;
+    }
+
+    nav {
+        width: 100%;
+    }
+
+    nav ul {
+        width: 33%;
+    }
+
+    nav .profileSection {
+        width: 33%;
+        justify-content: flex-end;
+    }
+
+    .searchBar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 33%;
+        height: 40px;
+    }
+
+    .searchBar input {
+        width: 90%;
+        height: 100%;
+        border-radius: 5px 0 0 5px;
+        border: none;
+        padding: 5px;
+        background-color: #3F3F3F;
+        color: #929292;
+        padding-left: 20px;
+        font-weight: bold;
+    }
+
+    .searchBar input::placeholder {
+        color: #929292;
+        font-weight: bold;
+    }
+
+    .searchBar input:focus {
+        outline: none;
+    }
+
+    .searchBar button {
+        width: 10%;
+        height: 100%;
+        border-radius: 0 5px 5px 0;
+        border: none;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        background-color: #3F3F3F;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        z-index: 1;
+    }
+
+    .dropdown:hover .dropbtn {
+        transform: rotate(180deg);
+        transition: transform 0.3s ease;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        z-index: 1;
+        background-color: #3F3F3F;
+    }
+
+    .dropbtn {
+        background-color: transparent;
+        color: white;
+        padding: 10px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+
+    .dropdown-content a {
+        display: block;
+        color: #8e8e8e;
+        padding: 10px 15px;
+        text-decoration: none;
+        text-align: right;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #f1f1f1;
+    }
+
+    .dropdown {
+        position: relative;
+    }
+
+    .dropdown-content {
+        right: 0;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    }
+
+    .loader {
+        border: 6px solid #f3f3f3;
+        border-top: 6px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+
+<body id="content">
+    <div id="loadingOverlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background-color:#242424; z-index:9999;"></div>
+    <nav class="d-flex justify-content-between p-4 align-items-center">
+        <ul class="d-flex list-unstyled gap-3 mb-0">
+            <li><a href="{% url 'home' %}" class="nav-link text-decoration-none" data-url="{% url 'home' %}"><i
+                        class="fa fa-play"></i>{{"SPEL STARTEN"|translate:request }}</a></li>
+            <li><a href="{% url 'leaderboard' %}" class="nav-link text-decoration-none"
+                    data-url="{% url 'leaderboard' %}"><i class="fa fa-trophy"></i>{{"KAMPIOENEN"|translate:request }}</a></li>
+            <li><a href="{% url 'lastGames' %}" class="nav-link text-decoration-none"
+                    data-url="{% url 'lastGames' %}"><i class="fa fa-gamepad"></i>{{"SPELGESCHIEDENIS"|translate:request }}</a></li>
+        </ul>
+        <div class="searchBar">
+            <input type="text" placeholder="{{ 'Gebruiker opzoeken...'|translate:request }}" id="searchInput">
+            <button type="submit">&#x1F50D;</button>
+            <div id="searchResults" class="dropdown-content" style="display: none;"></div>
+        </div>
+        {% if user.is_authenticated %}
+        <div class="profileSection d-flex align-items-center">
+            <img src="{{ user.userprofile.profilePicture.url }}" class="rounded-circle" alt="Profile picture">
+            <div class="dropdown">
+                <button class="dropbtn">&#x25BC;</button>
+                <div class="dropdown-content">
+                    <a data-url="{% url 'userProfile' user.username %}" href="{% url 'userProfile' user.username %}">{{"Profiel"|translate:request}}</a>
+                    <a href="{% url 'dashboard' %}" data-url="{% url 'dashboard' %}">{{ "Dashboard"|translate:request }}</a>
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#settingsModal">{{"Opties"|translate:request}}</a>
+                    <a href="{% url 'logout' %}">{{ "Uitloggen"|translate:request }}</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="profileSection d-flex align-items-center gap-3">
+            <a href="{% url 'login' %}" class="nav-link text-decoration-none">{{"INLOGGEN"|translate:request }}</a>
+            <a href="{% url 'signup' %}" class="nav-link text-decoration-none">{{"REGISTREREN"|translate:request }}</a>
+        </div>
+        {% endif %}
+    </nav>
+    {% if request.path == '/' %}
+        {% include 'game.html' %}
+    {% endif %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const contentDiv = document.getElementById('content');
+    
+            function loadContent(url, addToHistory = true) {
+                document.getElementById('loadingOverlay').style.display = 'block';
+    
+                fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    contentDiv.innerHTML = html;
+                    if (addToHistory) {
+                        history.pushState({ url: url }, '', url);
+                    }
+                    attachEventListeners();
+                    document.dispatchEvent(new Event('spaContentLoaded'));
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Error loading content:', error);
+                    contentDiv.innerHTML = '<p>Error loading content. Please try again.</p>';
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                });
+            }
+    
+            function attachEventListeners() {
+                document.querySelectorAll('a[data-url]').forEach(link => {
+                    link.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const url = this.getAttribute('data-url');
+                        loadContent(url);
+                    });
+                });
+    
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput) {
+                    searchInput.addEventListener('input', function (e) {
+                        const inputVal = e.target.value;
+                        console.log('Search input:', inputVal);
+    
+                        if (inputVal.length > 0) {
+                            fetch(`/search_user/?term=${inputVal}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    console.log('Search results:', data);
+                                    let resultList = document.getElementById('searchResults');
+                                    resultList.innerHTML = '';
+                                    resultList.style.display = 'block';
+                                    data.forEach(user => {
+                                        let li = document.createElement('li');
+                                        li.innerHTML = `<a data-url="/user/${user.username}">${user.username}</a>`;
+                                        li.addEventListener('click', function () {
+                                            loadContent(`/user/${user.username}`);
+                                        });
+                                        resultList.appendChild(li);
+                                    });
+                                })
+                                .catch(error => {
+                                    console.error('Error fetching search results:', error);
+                                });
+                        } else {
+                            document.getElementById('searchResults').style.display = 'none';
+                        }
+                    });
+                }
+
+                function setToWins() {
+                    console.log('Setting to wins');
+                    const leaderboardByWins = document.getElementById('leaderboardByWins');
+                    const leaderboardByWinStreak = document.getElementById('leaderboardByWinStreak');
+                    const winsButton = document.getElementById('winsButton');
+                    const buttons = document.querySelectorAll('.switch-button');
+
+                    leaderboardByWins.style.display = 'block';
+                    leaderboardByWinStreak.style.display = 'none';
+                    buttons.forEach(button => button.classList.remove('activeOption'));
+                    winsButton.classList.add('activeOption');
+                }
+
+                function setToStreak() {
+                    console.log('Setting to streak');
+                    const leaderboardByWins = document.getElementById('leaderboardByWins');
+                    const leaderboardByWinStreak = document.getElementById('leaderboardByWinStreak');
+                    const streakButton = document.getElementById('streakButton');
+                    const buttons = document.querySelectorAll('.switch-button');
+
+                    leaderboardByWins.style.display = 'none';
+                    leaderboardByWinStreak.style.display = 'block';
+                    buttons.forEach(button => button.classList.remove('activeOption'));
+                    streakButton.classList.add('activeOption');
+                }
+
+                const friendLabel = document.getElementById('friendLabel');
+                if (friendLabel) {
+                    const removeFriendText = "{{ 'Verwijder vriend' |translate:request }}";
+                    const friendText = "{{ 'Vriend'|translate:request }}";
+                    friendLabel.addEventListener('mouseover', function () {
+                        this.textContent = removeFriendText;
+                    });
+                    friendLabel.addEventListener('mouseout', function () {
+                        this.textContent = friendText;
+                    });
+                    friendLabel.addEventListener('click', function () {
+                        const confirmed = confirm("{{ 'Are you sure you want to remove this friend?' |translate:request }}");
+                        if (confirmed) {
+                            document.getElementById('removeFriendForm').submit();
+                        }
+                    });
+                }
+
+                const carrousel = document.querySelector('.carrousel');
+                if (carrousel) {
+                    let isDragging = false;
+                    let startPos = 0;
+                    let scrollLeft = 0;
+
+                    carrousel.addEventListener('mousedown', (e) => {
+                        isDragging = true;
+                        startPos = e.pageX - carrousel.offsetLeft;
+                        scrollLeft = carrousel.scrollLeft;
+                    });
+
+                    carrousel.addEventListener('mouseleave', () => {
+                        isDragging = false;
+                    });
+
+                    carrousel.addEventListener('mouseup', () => {
+                        isDragging = false;
+                    });
+
+                    carrousel.addEventListener('mousemove', (e) => {
+                        if (!isDragging) return;
+                        e.preventDefault();
+                        const x = e.pageX - carrousel.offsetLeft;
+                        const walk = (x - startPos) * 1;
+                        carrousel.scrollLeft = scrollLeft - walk;
+                    });
+                }
+
+                {% if user.is_authenticated and game_stats.gamesPlayed > 0 %}
+                if (window.location.pathname === "{% url 'dashboard' %}") {
+                    initChart();
+                }
+                {% endif %}
+            }
+    
+            window.addEventListener('popstate', function (e) {
+                if (e.state && e.state.url) {
+                    loadContent(e.state.url, false);
+                }
+            });
+    
+            loadContent(window.location.pathname, false);
+            attachEventListeners();
+        });
+    </script>
+</body>
+
+
+</html>

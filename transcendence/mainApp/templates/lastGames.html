@@ -1,0 +1,163 @@
+<style>
+    .game-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: #0f0f0f;
+        height: 100px;
+        border-radius: 20px;
+        opacity: 0.7;
+        transition: opacity 0.3s;
+    }
+
+    .game-container:hover {
+        opacity: 1;
+    }
+
+    .playerColors {
+        width: 20px;
+        height: 100%;
+    }
+
+    .game-details {
+        width: 100%;
+        height: 100%;
+        text-align: center;
+    }
+
+    .player-name {
+        margin-bottom: 0;
+    }
+
+    .score {
+        margin-bottom: 0;
+        width: 20%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        line-height: 1;
+    }
+
+    .score h2 {
+        margin-bottom: 0;
+    }
+
+    .score p {
+        margin-bottom: 0;
+        font-size: 10px;
+    }
+
+    .w-100 {
+        width: 100%;
+    }
+</style>
+
+{% extends 'base.html' %}
+{% load translation_filters %}
+
+{% block title %}Last Games{% endblock %}
+
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+<div class="custom-alert fade show {{ message.tags }}">
+    <p>{{ message }}</p>
+    <button type="button" class="btn-close-custom" aria-label="{{ " Sluiten"|translate:request }}">x</button>
+</div>
+{% endfor %}
+{% endif %}
+
+<div class="container mt-4">
+    <h1 class="mb-5">{{ "Laatst gespeelde spelletjes"|translate:request }}</h1>
+    <div class="d-flex flex-column gap-4" style="padding-bottom: 50px;">
+        {% for match in matches %}
+        <a href="{% url 'gameOverview' match.id %}"
+            class="game-container d-flex align-items-center justify-content-between text-decoration-none text-white" data-url="{% url 'gameOverview' match.id %}">
+            <div class="playerColors" style="border-radius: 20px 0 0 20px; background-color: rgb(95, 95, 255);"></div>
+            <div class="game-details d-flex flex-column justify-content-center align-items-center py-2 px-4">
+                <div class="d-flex justify-content-between align-items-center w-100 mb-2">
+                    <div>{{ match.date|date:"d/m/Y" }}</div>
+                    <div>{{ "Duratie"|translate:request }}: {{ match.duration }}</div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center w-100">
+                    <div class="player d-flex gap-2 align-items-center" style="width: 40%;">
+                        <img src="{{ match.player1.userprofile.profilePicture.url }}" alt="Player One" width="30"
+                            height="30" class="rounded-circle">
+                        <h3 class="player-name">{{ match.player1.username }}</h3>
+                    </div>
+                    <div class="score">
+                        <h2>{{ match.player1_score }}-{{ match.player2_score }}</h2>
+                        <p>{{ match.typeGame }}</p>
+                    </div>
+                    <div class="player d-flex gap-2 align-items-center justify-content-end" style="width: 40%;">
+                        <h3 class="player-name">
+                            {% if match.is_player2_ai %}
+                            AI
+                            {% else %}
+                            {{ match.player2.username }}
+                            {% endif %}
+                        </h3>
+                        {% if match.is_player2_ai %}
+                        <img src="../../media/defaults/default_profile.png" alt="Player Two" width="30" height="30"
+                            class="rounded-circle">
+                        {% else %}
+                        <img src="{{ match.player2.userprofile.profilePicture.url }}" alt="Player One" width="30"
+                            height="30" class="rounded-circle">
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="playerColors" style="border-radius: 0 20px 20px 0; background-color: rgb(253, 89, 89);"></div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const btnClose = document.querySelectorAll('.btn-close-custom');
+
+        btnClose.forEach(button => {
+            button.addEventListener('click', () => {
+                console.log('Button clicked');
+                const alert = button.closest('.custom-alert');
+                if (alert) {
+                    alert.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+            const contentDiv = document.getElementById('content');
+    
+            function loadContent(url, addToHistory = true) {
+                document.getElementById('loadingOverlay').style.display = 'block';
+    
+                fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    contentDiv.innerHTML = html;
+                    if (addToHistory) {
+                        history.pushState({ url: url }, '', url);
+                    }
+                    attachEventListeners();
+                    document.dispatchEvent(new Event('spaContentLoaded'));
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Error loading content:', error);
+                    contentDiv.innerHTML = '<p>Error loading content. Please try again.</p>';
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                });
+            }
+    }
+</script>
+{% endblock %}

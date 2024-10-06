@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{% block title %}My Site{% endblock %}</title>
+    {% comment %}
+    {% load bootstrap5 %}
+    {% endcomment %}
+    {% load django_bootstrap5 %}
+    {% bootstrap_css %}
+</head>
+
+<body>
+    {% include 'navbar.html' %}
+    {% include 'settingsModal.html' %}
+    {% if user.is_authenticated %}
+    {% include 'socialTab.html' %}
+    {% endif %}
+    {% block content %}
+    {% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function updateUserStatus() {
+            fetch('/update_status/', { method: 'POST', headers: { 'X-CSRFToken': '{{ csrf_token }}' } })
+                .then(response => console.log('Status updated'))
+                .catch(error => console.error('Error updating status:', error));
+        }
+
+        setInterval(updateUserStatus, 60000);
+    </script>
+</body>
+
+</html>

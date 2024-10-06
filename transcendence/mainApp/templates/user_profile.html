@@ -1,0 +1,413 @@
+<style>
+    .banner {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        position: relative;
+        box-shadow: 0px 10px 10px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    .profileInfo {
+        position: absolute;
+        top: 225px;
+        left: 100px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .profilePictureContainer {
+        position: relative;
+        display: inline-block;
+    }
+
+    .profilePicture {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border: 2px solid #FF6B00;
+        border-radius: 50%;
+    }
+
+    .statusIndicator {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid white;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+    }
+
+    .online {
+        background-color: #00FF00;
+    }
+
+    .offline {
+        background-color: #FF0000;
+    }
+
+    .profileNames {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .profileNames h1 {
+        font-size: 2.5rem;
+        color: white;
+    }
+
+    .profileNames p {
+        font-style: italic;
+    }
+
+    .friendLabel,
+    .addFriendButton,
+    .ownerLabel,
+    .BlockedLabel,
+    .requestSentLabel {
+        display: inline-block;
+        background-color: #4CAF50;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 5px;
+        font-size: 1rem;
+        font-weight: bold;
+        text-align: center;
+        text-decoration: none;
+        margin: 4px 2px;
+        cursor: pointer;
+        border: none;
+    }
+
+    .BlockedLabel {
+        background-color: red;
+    }
+
+    .friendLabel {
+        transition: background-color 0.5s ease, color 0.5s ease;
+        cursor: pointer;
+    }
+
+    .friendLabel:hover {
+        background-color: red;
+        color: white;
+    }
+
+    .customContainer {
+        padding: 20px 100px;
+        margin-top: 100px;
+    }
+
+    .customContainer2 {
+        padding: 20px 100px;
+        margin-top: 20px;
+    }
+
+    .lastGameBox {
+        background-color: #2d2d2d;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 5px;
+        font-size: 1rem;
+        font-weight: bold;
+        text-align: center;
+        text-decoration: none;
+        margin: 4px 2px;
+        border: none;
+        width: 500px;
+        flex: 0 0 500px;
+        user-select: none;
+    }
+
+    .lastGameBox h4 {
+        color: #FF6B00;
+        font-weight: bold;
+    }
+
+    .lastGameBox h5 {
+        margin: 0;
+    }
+
+    .dates p {
+        margin: 0;
+        font-size: 0.8rem;
+    }
+
+    .carrousel {
+        overflow-x: auto;
+        display: flex;
+        gap: 10px;
+        padding: 0 100px;
+    }
+
+    .carrousel::-webkit-scrollbar {
+        display: none;
+    }
+
+    .gamePfp {
+        border-radius: 50%;
+    }
+
+    .boxInfo {
+        width: 40%;
+    }
+
+    .boxInfo h5 {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .lastGameBox a {
+        color: #FF6B00;
+        text-decoration: none;
+        font-size: 0.6rem;
+        font-weight: lighter;
+    }
+
+    .lineChartSection {
+        height: 10px;
+        width: 100%;
+    }
+
+    .winSection {
+        background-color: #28a745;
+        border-radius: 10px 0 0 10px;
+    }
+
+    .drawSection {
+        background-color: #ffc107;
+    }
+
+    .loseSection {
+        background-color: #dc3545;
+        border-radius: 0 10px 10px 0;
+    }
+
+    .winRateCard {
+        background-color: #2d2d2d;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+        margin-bottom: 30px;
+    }
+
+    .winRateCard h3 {
+        color: #FF6B00;
+        font-weight: bold;
+        font-size: 32px;
+    }
+
+    .winRateCard h4 {
+        font-weight: bold;
+        font-size: 24px;
+        margin-bottom: 0;
+    }
+
+    .winRateCard p {
+        font-size: 14px;
+        margin-bottom: 0;
+    }
+
+    .winRateCard p span {
+        font-weight: bold;
+        color: #FF6B00;
+        font-size: 16px;
+    }
+
+    .winRateChart h5 {
+        font-size: 20px;
+        margin-bottom: 0;
+        margin-top: 5px;
+    }
+</style>
+
+{% extends 'base.html' %}
+{% load math_filters %}
+
+{% block title %}ProfilePage - {{ profile_user.username }}{% endblock %}
+
+{% load translation_filters %}
+
+{% block content %}
+
+<div class="mt-3" style="position: relative;">
+    <img src="{{ profile_user.userprofile.bannerPicture.url }}" class="banner" alt="profileBanner">
+    <div class="profileInfo">
+        <div class="profilePictureContainer">
+            <img src="{{ profile_user.userprofile.profilePicture.url }}" alt="profilePicture" class="profilePicture">
+            <div
+                class="statusIndicator {% if profile_user.userprofile.is_user_online %}online{% else %}offline{% endif %}">
+            </div>
+        </div>
+        <div class=" profileNames">
+            <div class="d-flex gap-3 align-items-center">
+                <h1>{{ profile_user.userprofile.user.first_name }} {{ profile_user.userprofile.user.last_name }}</h1>
+                {% if user.is_authenticated %}
+                {% if profile_user.userprofile in request.user.userprofile.blockedUsers.all %}
+                <h4 class="BlockedLabel" id="BlockedLabel">{{ "Geblokkeerd"|translate:request }}</h4>
+                {% else %}
+                {% if request.user == profile_user %}
+                <h4 class="ownerLabel" id="ownerLabel">{{ "Jezelf"|translate:request }}</h4>
+                {% else %}
+                {% if profile_user.userprofile not in request.user.userprofile.friends.all %}
+                {% if request.user.userprofile in profile_user.userprofile.friendRequests.all %}
+                <h4 class="requestSentLabel" id="requestSentLabel">{{ "Vriendschapsverzoek verstuurd"|translate:request}}</h4>
+                {% else %}
+                <form action="{% url 'send_friend_request' %}" method="post" style="margin-bottom: 0;">
+                    {% csrf_token %}
+                    <input type="hidden" name="username" value="{{ profile_user.username }}">
+                    <button type="submit" class="addFriendButton">{{ "Vriend toevoegen"|translate:request }}</button>
+                </form>
+                {% endif %}
+                {% else %}
+                <h4 class="friendLabel" id="friendLabel">{{ "Vriend"|translate:request }}</h4>
+                <form id="removeFriendForm" action="{% url 'remove_friend' %}" method="post" style="display: none;">
+                    {% csrf_token %}
+                    <input type="hidden" name="username" value="{{ profile_user.username }}">
+                </form>
+                {% endif %}
+                {% endif %}
+                {% endif %}
+                {% endif %}
+            </div>
+            <p>{{ profile_user.username }}</p>
+        </div>
+    </div>
+
+    <div class="customContainer">
+        {% if gameStats.gamesPlayed == 0 %}
+        <h5>{{ "Nog geen spellen gespeeld"|translate:request }}</h5>
+        {% else %}
+	<h3 class="fw-bold">{{"Win rate"|translate:request}}</h3>
+        <div class="winRateCard">
+            <h3>W/L%</h3>
+            <div style="width: 100%;" class="d-flex justify-content-between align-items-end mb-2">
+                {% with winPercentage=gameStats.gamesWon|multiply:100|divide:gameStats.gamesPlayed|floatformat:2 %}
+                <h4>{{ winPercentage }}%</h4>
+                {% endwith %}
+                <p>{{ "Totaal aantal spellen gespeeld: "|translate:request }}<span>{{ gameStats.gamesPlayed }}</span>
+                </p>
+            </div>
+            <div class="d-flex align-items-center winRateChart" style="width: 100%;">
+                {% with winPercentage=gameStats.gamesWon|multiply:100|divide:gameStats.gamesPlayed %}
+                <div class="d-flex flex-column align-items-center" style="width: {{ winPercentage }}%;">
+                    <div class="lineChartSection winSection"></div>
+                    <h5 style="color: #28a745;">{{ gameStats.gamesWon }}</h5>
+                </div>
+                {% endwith %}
+                {% if gameStats.gamesDraw > 0 %}
+                {% with drawPercentage=gameStats.gamesDraw|multiply:100|divide:gameStats.gamesPlayed %}
+                <div class="d-flex flex-column align-items-center" style="width: {{ drawPercentage }}%;">
+                    <div class="lineChartSection drawSection"></div>
+                    <h5 style="color: #ffc107;">{{ gameStats.gamesDraw }}</h5>
+                </div>
+                {% endwith %}
+                {% endif %}
+                {% if gameStats.gamesLost > 0 %}
+                {% with losePercentage=gameStats.gamesLost|multiply:100|divide:gameStats.gamesPlayed %}
+                <div class="d-flex flex-column align-items-center" style="width: {{ losePercentage }}%;">
+                    <div class="lineChartSection loseSection"></div>
+                    <h5 style="color: #dc3545;">{{ gameStats.gamesLost }}</h5>
+                </div>
+                {% endwith %}
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if gameStats.gamesPlayed != 0 %}
+        <div class="profileLastGamesSection">
+            <h3 class="fw-bold">{{"Laaste spellen:"|translate:request}}</h3>
+        </div>
+        {% endif %}
+    </div>
+    {% if gameStats.gamesPlayed != 0 %}
+    <div class="d-flex gap-3 carrousel">
+        {% for game in last_games %}
+        <div class="lastGameBox">
+            <div class="d-flex justify-content-between align-items-center dates">
+                <p>{{ game.date|date:"d/m/Y" }}</p>
+                <p>{{ game.duration|timedelta_to_duration }}</p>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="d-flex align-items-center gap-2 boxInfo">
+                    <img src="{{ game.player1.userprofile.profilePicture.url }}" alt="profilePicture" class="gamePfp"
+                        style="width: 40px; height: 40px;">
+                    <h5 class="mb-0">{{ game.player1.username }}</h5>
+                </div>
+                <h4 class="mb-0 fw-bold">{{ game.player1_score }} - {{ game.player2_score }}</h4>
+                <div class="d-flex align-items-center gap-2 boxInfo justify-content-end">
+                    {% if game.is_player2_ai %}
+                    <img src="../../media/defaults/default_profile.png" alt="profilePicture" class="gamePfp"
+                        style="width: 40px; height: 40px;">
+                    <h5 class="mb-0">AI</h5>
+                    {% else %}
+                    <h5 class="mb-0">{{ game.player2.username }}</h5>
+                    <img src="{{ game.player2.userprofile.profilePicture.url }}" alt="profilePicture" class="gamePfp"
+                        style="width: 40px; height: 40px;">
+                    {% endif %}
+                </div>
+            </div>
+            <p class="mb-0">{{ game.typeGame }}</p>
+            <a href="{% url 'gameOverview' game.id %}">{{"Ga naar wedstrijd overview"|translate:request}}</a>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+<div class="customContainer2">
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const friendLabel = document.getElementById('friendLabel');
+        if (friendLabel) {
+            const removeFriendText = " {{ 'Verwijder vriend' |translate:request }}";
+            const friendText = "{{ 'Vriend'|translate:request }}";
+            friendLabel.addEventListener('mouseover', function () {
+                this.textContent = removeFriendText;
+            });
+            friendLabel.addEventListener('mouseout', function () {
+                this.textContent = friendText;
+            });
+            friendLabel.addEventListener('click', function () {
+                const confirmed = confirm("{{ 'Are you sure you want to remove this friend?' |translate:request }} ");
+                if (confirmed) {
+                    document.getElementById('removeFriendForm').submit();
+                }
+            });
+        }
+
+        const carrousel = document.querySelector('.carrousel');
+        let isDragging = false;
+        let startPos = 0;
+        let scrollLeft = 0;
+
+        carrousel.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startPos = e.pageX - carrousel.offsetLeft;
+            scrollLeft = carrousel.scrollLeft;
+        });
+
+        carrousel.addEventListener('mouseleave', () => {
+            isDragging = false;
+        });
+
+        carrousel.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        carrousel.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = e.pageX - carrousel.offsetLeft;
+            const walk = (x - startPos) * 1;
+            carrousel.scrollLeft = scrollLeft - walk;
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,13 @@
+{
+    "type": "service_account",
+    "project_id": "swift-implement-434213-g6",
+    "private_key_id": "1581986c333b7be5994de48443b6e29afe5f40f3",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDlO6ypEVouYsTt\nNSxd9qstDHLHlRAvIFRSYAQrPBk/PrOBia6GS6lxL2hrdr0ObL09SXzMq/H3LcE7\n6TZvBoimrEPYOOFsUIBjJr/UblLixnze8cX2oyUtudC0aBKvZMv7Q1wMqSN18LIh\neBtRj2H/NeoOKpryguONAro3cGYu4IsmCdmEK23O3KqChrdfr+wbbR6ct8PXhFGj\nczhLFEtSn4OPK0rvpH5SeW6VMkFzEmymf8W9JJRDaicB6l2L4R8FLiShTXMioJfv\nPEsGZPBk+TOiOizyzwl1xfuB1taGDJpcWdxK8JzT9Dk6TGfz/zBYXSEcFqzEIWrC\np9/JVgvlAgMBAAECggEAUIb+mCPy4LGsyUGxNM8XAgvJ9IfOeCesx4VYYZHKsreF\nmr9xsla5Dvxe+8VqE7uqXPHIaCQNK86Ef9Xk2+rZLWf9q2ML+Z9sAqjVobwh3O1q\nZ21apFJamK4afY3D5p6Ls9hNaVsvjFqCURSe0C+E9wELGG/qH8BQTLSFEz2mf9eS\nhkNbVtTvvFqKvabEKNG5+rYtDnxVlDezjNOqxv1U5DbF70FQe1Bof27RnQeZYQjk\nTdXeavQsq5Un3wCOPuLGVhiihn5aLCYin3Kpy+z4gozrWgwsm03cxLnmBYx7BrGD\nc7kGl1bIuta2K1YCNk8QjNW7Bj6PEIqv3YZAJC33nwKBgQDzlbwfSC0IntNDwbNE\nhJa9zzUHotHVXHvfjcfEERiQ3VWrYzHjKKVvDN0/MwPXbQ0uPK8a7G2uHefe7Dgf\nA9NxaaXIgguxAAeGQJNd/2yXkJEpVELrhgQFMWCxEinNMwWptAGKyKNEel5r3u2a\nG15+1NDM29pG0FvXn9fB7xpEFwKBgQDw6q3cR8QqvXJUfLli8sjHDxOUzaNTH4V/\nrv1FQuT5N2gCl7KfB2swNbYPTicSGYVrtNH1uWJ0qbvGmINbG/+4e+GThhvLWQIP\n/b0tbNbFrzN+8YowC5vDZ+MvAqu+554H7wsbM9xQZeluqYiEwPqYur+CKIXF1FnF\njLm25EdhYwKBgQDkD12DLGB9obbLyZ++lyVLsaVE8PzldyHDvUs8F4WYnKKJROaA\neJ3ry2+arHj8Se39THPmEVbfnsBpx2EEKODfXrsJcDjiD9T7rZpMd8mEXqaKu4ms\nWl2JPyH4p7jbltnGefK3rgKvKqMc/CwaDWX7+eVE6NMFWi+jQtUPjn5ZIQKBgFaf\nStwFQddMPqt6HP4i5WYNWbELL0pX7xw1wwMARmwFK/SirqrXdAbliQx/wTSU0JAl\nd8iuW2QvE0EY3UIJEy01/amZcqzu1/r/9OE8XQy/LfjayCD2S48670ib4TzG8t9P\nZ+LkBrcxrXkIo/l3maMIooseHts+uvh43N2RvsiZAoGBAOHR+foG5qw70r5enwbz\njFGi7pzznJfo8J/UD3hlJDunFvoZWt1aE2JIzAl0eaVGQq4lRVqhNXey0qQb1PSl\nV26ZSmMJSdN84Ryps7ageiXzLgOsL5ooPPSigvd0pjRIA4tbEfIKnbxA20KqSrZp\nmbO/SAhQMZjN5q+iAC0oy/xY\n-----END PRIVATE KEY-----\n",
+    "client_email": "ft-transcendence@swift-implement-434213-g6.iam.gserviceaccount.com",
+    "client_id": "115962133800953314030",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/ft-transcendence%40swift-implement-434213-g6.iam.gserviceaccount.com",
+    "universe_domain": "googleapis.com"
+}

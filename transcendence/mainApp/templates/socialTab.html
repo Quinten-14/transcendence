@@ -1,0 +1,431 @@
+{% load translation_filters %}
+
+<style>
+    .socialButton {
+        background-color: #FF6B00;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+    }
+
+    .nav-item {
+        max-width: 60px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .tooltip-box {
+        display: none;
+        position: absolute;
+        background-color: #fff;
+        color: #000;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 5px;
+        font-size: 12px;
+        z-index: 1010;
+        white-space: normal;
+        max-width: 200px;
+    }
+
+    .socialMenu {
+        display: none;
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        z-index: 1000;
+        background-color: #1e1e1e;
+        border-radius: 10px;
+        padding: 10px;
+        width: 250px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .socialMenu nav a {
+        color: white;
+        text-decoration: none;
+        max-width: 100px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .socialMenu nav a:hover {
+        color: #c75300;
+    }
+
+    .activeLink {
+        color: #FF6B00 !important;
+        font-weight: bold;
+    }
+
+    .socialMenuContent {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-height: 300px;
+        max-height: 300px;
+    }
+
+    .socialMenuFriendTab {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .socialMenuContent>div {
+        display: none;
+    }
+
+    .extraOptionsBtn {
+        cursor: pointer;
+        padding: 5px;
+    }
+
+    .socialMenu nav {
+        border-bottom: 2px solid #FF6B00;
+    }
+
+    .optionsMenu {
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        padding: 12px 16px;
+        z-index: 1;
+    }
+
+    .optionsMenu a {
+        padding: 3px 4px;
+        text-decoration: none;
+        display: block;
+        color: black;
+        font-size: 0.7rem;
+    }
+
+    .optionsMenu a:hover {
+        background-color: #f1f1f1;
+    }
+
+    .optionsMenu button {
+        padding: 3px 4px;
+        text-decoration: none;
+        display: block;
+        color: black;
+        font-size: 0.7rem;
+        background-color: transparent;
+        border: none;
+    }
+
+    .optionsMenu button:hover {
+        background-color: #f1f1f1;
+    }
+
+    .unblockBtn {
+        background-color: red;
+        color: white;
+        border: none;
+        border-radius: 5px;
+    }
+
+    .requestBtn {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 5px 12px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 8px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 12px;
+        transition: background-color 0.3s ease;
+    }
+
+    .accept-btn {
+        background-color: #4CAF50;
+    }
+
+    .reject-btn {
+        background-color: #f44336;
+    }
+</style>
+
+<div>
+    <button class="socialButton">
+        <i class="fas fa-users"></i>
+    </button>
+    <div class="socialMenu">
+        <nav class="d-flex justify-content-between p-1">
+            <a class="text-decoration-none" href="#/friends" data-target="socialMenuFriendTab" data-title="{{ "Vrienden"|translate:request }}">{{ "Vrienden"|translate:request }}</a>
+            <a class="text-decoration-none" href="#/request" data-target="socialMenuRequestTab" data-title="{{ "Vriendschapsverzoeken"|translate:request }}">{{ "Vriendschapsverzoeken"|translate:request }}</a>
+            <a class="text-decoration-none" href="#/blocked" data-target="socialMenuBlockedTab" data-title="{{ "Geblokkeerd"|translate:request }}">{{ "Geblokkeerd"|translate:request }}</a>
+        </nav>
+        <div class="socialMenuContent">
+            <div id="socialMenuFriendTab" class="socialMenuFriendTab">
+                <p style=" margin-bottom: 0;" class="fw-bold mt-2">{{ "Online vrienden"|translate:request }}</p>
+                {% for friend in user.userprofile.friends.all %}
+                {% if friend.is_user_online %}
+                <div class="d-flex align-items-center justify-content-between px-2 py-1 mt-2">
+                    <div class="d-flex gap-2 align-items-center">
+                        <img class=" rounded-circle" src=" {{ friend.profilePicture.url }}" alt="{{ friend.username }}"
+                            width="40" height="40">
+                        <span class="fw-bold">{{ friend.user.username }}</span>
+                    </div>
+                    <div class="extraOptionsBtn" onclick="toggleMenu(event, 'menuId')">
+                        <div class="d-flex gap-1">
+                            <div style="width: 5px; height: 5px; border-radius: 50%; background-color: white;"></div>
+                            <div style="width: 5px; height: 5px; border-radius: 50%; background-color: white;"></div>
+                            <div style="width: 5px; height: 5px; border-radius: 50%; background-color: white;"></div>
+                        </div>
+                        <div class="optionsMenu" style="display: none;" id="menuId">
+                            <a href="{% url 'userProfile' friend.user.username %}">{{ "Profiel bekijken"|translate:request }}</a>
+                            <form action="{% url 'remove_friend' %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="username" value="{{ friend.user.username }}">
+                                <button type="submit">{{ "Vriend verwijderen"|translate:request }}</button>
+                            </form>
+                            <form action="{% url 'block_user' %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="username" value="{{ friend.user.username }}">
+                                <button type="submit">{{ "Blokkeer gebruiker"|translate:request }}</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+
+                <hr>
+
+                <p style=" margin-bottom: 0;" class="fw-bold">{{ "Offline Vrienden"|translate:request }}</p>
+                {% for friend in user.userprofile.friends.all %}
+                {% if not friend.is_user_online %}
+                <div class="d-flex align-items-center justify-content-between px-2 py-1 mt-2">
+                    <div class="d-flex gap-2 align-items-center">
+                        <img class=" rounded-circle" src=" {{ friend.profilePicture.url }}" alt="{{ friend.username }}"
+                            width="40" height="40">
+                        <span class="fw-bold">{{ friend.user.username }}</span>
+                    </div>
+                    <div class="extraOptionsBtn" onclick="toggleMenu(event, 'menuId')">
+                        <div class="d-flex gap-1">
+                            <div style="width: 5px; height: 5px; border-radius: 50%; background-color: white;"></div>
+                            <div style="width: 5px; height: 5px; border-radius: 50%; background-color: white;"></div>
+                            <div style="width: 5px; height: 5px; border-radius: 50%; background-color: white;"></div>
+                        </div>
+                        <div class="optionsMenu" style="display: none;" id="menuId">
+                            <a href="{% url 'userProfile' friend.user.username %}" data-url="{% url 'userProfile' friend.user.username %}">{{ "Profiel bekijken"|translate:request }}</a>
+                            <form action="{% url 'remove_friend' %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="username" value="{{ friend.user.username }}">
+                                <button type="submit">{{ "Vriend verwijderen"|translate:request }}</button>
+                            </form>
+                            <form action="{% url 'block_user' %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="username" value="{{ friend.user.username }}">
+                                <button type="submit">{{ "Blokkeer gebruiker"|translate:request }}</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+
+            </div>
+
+            <div id="socialMenuRequestTab" class="socialMenuRequestTab">
+                <p style=" margin-bottom: 0;" class="fw-bold mt-2">{{ "Vriendschapsverzoeken"|translate:request }}</p>
+                {% for friend_request in user.userprofile.friendRequests.all %}
+                <div class="d-flex align-items-center justify-content-between px-2 py-1 mt-2">
+                    <div class="d-flex gap-2 align-items-center">
+                        <img class="rounded-circle" src="{{ friend_request.profilePicture.url }}"
+                            alt="{{ friend_request.user.username }}" width="40" height="40">
+                        <span class="fw-bold">{{ friend_request.user.username }}</span>
+                    </div>
+                    <form action="{% url 'add_friend' %}" method="post"
+                        style="display: inline; margin-block-end: 0 !important;">
+                        {% csrf_token %}
+                        <input type="hidden" name="username" value="{{ friend_request.user.username }}">
+                        <button type="submit" class="requestBtn accept-btn">V</button>
+                    </form>
+                    <form action="{% url 'decline_friend_request' %}" method="post"
+                        style="display: inline; margin-block-end: 0 !important;">
+                        {% csrf_token %}
+                        <input type="hidden" name="username" value="{{ friend_request.user.username }}">
+                        <button type="submit" class="requestBtn reject-btn">X</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div id="socialMenuBlockedTab" class="socialMenuBlockedTab">
+                <p style=" margin-bottom: 0;" class="fw-bold mt-2">{{ "Geblokkeerde gebruikers"|translate:request }}</p>
+                {% for blocked in user.userprofile.blockedUsers.all %}
+                <div class="d-flex align-items-center justify-content-between px-2 py-1 mt-2">
+                    <div class="d-flex gap-2 align-items-center">
+                        <img class=" rounded-circle" src=" {{ blocked.profilePicture.url }}"
+                            alt="{{ blocked.user.username }}" width="40" height="40">
+                        <span class="fw-bold">{{ blocked.user.username }}</span>
+                    </div>
+                    <form action="{% url 'unblock_user' %}" method="post"
+                        style="display: inline; margin-block-end: 0 !important;">
+                        {% csrf_token %}
+                        <input type="hidden" name="username" value="{{ blocked.user.username }}">
+                        <button class="unblockBtn" type="submit">{{ "Deblokkeren"|translate:request }}</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        function attachSocialMenuEventListeners() {
+            const socialButton = document.querySelector('.socialButton');
+            const socialMenu = document.querySelector('.socialMenu');
+            const navLinks = document.querySelectorAll('.socialMenu nav a');
+            const tabs = document.querySelectorAll('.socialMenuContent > div');
+
+            if (!socialButton) {
+                console.error('Social button not found');
+                return;
+            }
+
+            console.log('Social button found');
+
+            const isMenuVisible = window.getComputedStyle(socialMenu).display !== 'none';
+            socialMenu.style.display = isMenuVisible ? 'block' : 'none';
+
+            const defaultTabId = 'socialMenuFriendTab';
+            document.getElementById(defaultTabId).style.display = 'block';
+            document.querySelector(`.socialMenu nav a[data-target="${defaultTabId}"]`).classList.add('activeLink');
+
+            socialButton.addEventListener('click', (event) => {
+                console.log('Social button clicked');
+                socialMenu.style.display = socialMenu.style.display === 'none' ? 'block' : 'none';
+                event.stopPropagation();
+            });
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const targetId = link.getAttribute('data-target');
+
+                    tabs.forEach(tab => {
+                        tab.style.display = 'none';
+                    });
+
+                    document.getElementById(targetId).style.display = 'block';
+
+                    navLinks.forEach(lnk => {
+                        lnk.classList.remove('activeLink');
+                    });
+
+                    link.classList.add('activeLink');
+                });
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!socialMenu.contains(event.target) && !socialButton.contains(event.target)) {
+                    socialMenu.style.display = 'none';
+                }
+            });
+        }
+
+        function attachTooltipEventListeners() {
+            const navItems = document.querySelectorAll('.socialMenu nav a');
+
+            navItems.forEach(item => {
+                item.addEventListener('mouseenter', function (e) {
+                    let tooltipBox = document.createElement('div');
+                    tooltipBox.className = 'tooltip-box';
+                    tooltipBox.textContent = e.target.getAttribute('data-title');
+                    document.body.appendChild(tooltipBox);
+
+                    let coords = e.target.getBoundingClientRect();
+                    tooltipBox.style.left = `${coords.left}px`;
+                    tooltipBox.style.top = `${coords.bottom + 5}px`;
+                    tooltipBox.style.display = 'block';
+                });
+
+                item.addEventListener('mouseleave', function () {
+                    document.querySelectorAll('.tooltip-box').forEach(el => el.remove());
+                });
+            });
+        }
+
+        attachSocialMenuEventListeners();
+        attachTooltipEventListeners();
+
+        document.addEventListener('spaContentLoaded', () => {
+            attachSocialMenuEventListeners();
+            attachTooltipEventListeners();
+        });
+    });
+
+    function toggleMenu(event, menuId) {
+        event.stopPropagation();
+        var menu = document.getElementById(menuId);
+        var isVisible = menu.style.display === "block";
+        document.querySelectorAll('.optionsMenu').forEach(function (menu) {
+            menu.style.display = "none";
+        });
+        menu.style.display = isVisible ? "none" : "block";
+
+        var rightEdge = menu.getBoundingClientRect().right;
+        var windowWidth = window.innerWidth;
+
+        if (rightEdge > windowWidth) {
+            menu.style.right = "0";
+            menu.style.left = "auto";
+        } else {
+            menu.style.right = "auto";
+            menu.style.left = "0";
+        }
+    }
+
+    document.addEventListener('click', function () {
+        document.querySelectorAll('.optionsMenu').forEach(function (menu) {
+            menu.style.display = "none";
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+            const contentDiv = document.getElementById('content');
+    
+            function loadContent(url, addToHistory = true) {
+                document.getElementById('loadingOverlay').style.display = 'block';
+    
+                fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    contentDiv.innerHTML = html;
+                    if (addToHistory) {
+                        history.pushState({ url: url }, '', url);
+                    }
+                    attachEventListeners();
+                    document.dispatchEvent(new Event('spaContentLoaded'));
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Error loading content:', error);
+                    contentDiv.innerHTML = '<p>Error loading content. Please try again.</p>';
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                });
+            }
+    });
+</script>

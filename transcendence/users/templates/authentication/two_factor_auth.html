@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Two Factor Authentication</title>
+    {% load django_bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    <style>
+        body {
+            background-color: #242424;
+        }
+
+        .digit-input {
+            width: 75px;
+            height: 100px;
+            text-align: center;
+            font-size: 32px;
+            margin: 0;
+            border: 1px solid black;
+        }
+
+        .digit-input:first-child {
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+
+        .digit-input:last-child {
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 0px;
+        }
+
+        h2 {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        p {
+            color: white;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            background-color: #FF6B00;
+            border-color: #FF6B00;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+            width: 450px;
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus {
+            background-color: #bd4f00;
+            border-color: #bd4f00;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="d-flex flex-column justify-content-center align-items-center" style="height: 100vh; width: 100vw;">
+        <h2>Two Factor Authentication</h2>
+        <p>Enter your 6-digit code here</p>
+        <form method="post" id="authForm">
+            {% csrf_token %}
+            <div class="d-flex justify-content-center">
+                {% for i in "123456" %}
+                <input type="text" inputmode="numeric" maxlength="1" name="code{{forloop.counter}}"
+                    id="code{{forloop.counter}}" class="digit-input" required>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+        </form>
+    </div>
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <script>
+        const inputs = document.querySelectorAll('.digit-input');
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', () => {
+                if (input.nextElementSibling && input.value) {
+                    input.nextElementSibling.focus();
+                } else if (!input.value) {
+                    if (input.previousElementSibling) {
+                        input.previousElementSibling.focus();
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

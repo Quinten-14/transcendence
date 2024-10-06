@@ -1,0 +1,809 @@
+<style>
+    .custom-alert {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1050;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, .1);
+        animation: slideIn 0.5s ease-out;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .custom-alert.error {
+        background-color: #ffdddd;
+        border-left: 6px solid #f44336;
+        color: black;
+    }
+
+    .center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+    }
+
+    .custom-alert.success {
+        background-color: #ddffdd;
+        border-left: 6px solid #4CAF50;
+        color: black;
+    }
+
+    .custom-alert p {
+        margin: 0;
+        padding-right: 20px;
+    }
+
+    .btn-close-custom {
+        cursor: pointer;
+        background-color: transparent;
+        border: none;
+        font-size: 20px;
+        line-height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        color: black;
+        margin-right: 5px;
+    }
+
+    .btn-close-custom:hover {
+        color: #999;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+        }
+
+        to {
+            transform: translateX(0);
+        }
+    }
+
+    .bracket {
+        background-color: #1e1e1e;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin: 20px 0;
+        width: 650px;
+    }
+
+    .participant {
+        padding: 5px 10px;
+        background-color: #404040;
+        border-radius: 4px;
+        flex-grow: 1;
+        margin: 0 5px;
+        text-align: center;
+        font-weight: bold;
+        width: 48%;
+    }
+
+    .match {
+        background-color: #2c2c2c;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .matchPlayers {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .match p {
+        margin: 0;
+        padding: 5px 0;
+        font-weight: bold;
+        color: #FF6B00;
+        text-align: center;
+    }
+
+    .match button {
+        padding: 5px 10px;
+        background-color: #FF6B00;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-top: 10px;
+        font-weight: bold;
+    }
+
+    .match button:hover {
+        background-color: #ae4a02;
+    }
+
+    .gameBody {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 650px;
+        background-color: #121212;
+        color: #FFFFFF;
+        font-family: Arial, sans-serif;
+        margin: 0 auto;
+        width: 650px;
+        margin-top: 30px;
+        border-radius: 10px;
+    }
+
+    #menu {
+        text-align: center;
+        display: flex;
+        width: 100%;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .gameBody button {
+        display: block;
+        margin: 10px auto;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    input[type="number"] {
+        display: block;
+        margin: 10px auto;
+        padding: 10px;
+        font-size: 16px;
+        border: 2px solid #4CAF50;
+        border-radius: 5px;
+        background-color: #333;
+        color: white;
+        text-align: center;
+        outline: none;
+        transition: border-color 0.3s ease;
+    }
+
+    input[type="number"]:focus {
+        border-color: #FF6B00;
+    }
+
+    .gameBody button:hover {
+        background-color: #FF6B00;
+    }
+
+    canvas {
+        display: none;
+        height: 650px;
+        width: 650px;
+        border-radius: 10px;
+    }
+
+    #gameOver {
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 32px;
+        color: #FF6B00;
+        background-color: rgba(0, 0, 0, 0.7);
+        padding: 20px 40px;
+        border-radius: 10px;
+        border: 2px solid #FF6B00;
+        box-shadow: 0px 10px 10px -5px rgba(0, 0, 0, 0.5);
+        text-align: center;
+        font-family: 'Press Start 2P', cursive;
+    }
+
+    .indexBody {
+        color: #FFFFFF;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        gap: 10px;
+        flex-direction: column;
+    }
+
+    .scoreboard {
+        width: 650px;
+        height: 150px;
+        background-color: #333;
+        border-radius: 10px;
+        margin: 0 auto;
+    }
+
+    .scoreCard2 {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding: 0px;
+        font-size: 20px;
+    }
+
+    .scoreCard2 span {
+        color: #FF6B00;
+    }
+
+    .scoreCard4 {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding: 20px;
+        font-size: 16px;
+    }
+
+    .scoreCard4 span {
+        color: #FF6B00;
+    }
+
+    .timeSection {
+        text-align: center;
+        font-size: 24px;
+        color: #FF6B00;
+        margin-top: 10px;
+    }
+</style>
+
+{% extends 'base.html' %}
+
+{% block title %}{{ tournament.name }}{% endblock %}
+
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+<div class="custom-alert fade show {{ message.tags }}">
+    <p>{{ message }}</p>
+    <button type="button" class="btn-close-custom" aria-label="Close">x</button>
+</div>
+{% endfor %}
+{% endif %}
+
+
+<div class="gameBody">
+    <audio id="hitSound" src="https://www.myinstants.com/media/sounds/pew_pew-dknight556-1379997159.mp3"
+        preload="auto"></audio>
+    <div id="menu">
+        <div class="mt-4">
+            <div class="gameModes d-flex gap-3">
+                <p>Click on a bracket start game</p>
+            </div>
+        </div>
+    </div>
+    <div id="gameOver"></div>
+    <canvas id="gameCanvas"></canvas>
+</div>
+</div>
+<div class="scoreboard" style="display: none;">
+    <h3 class="timeSection">
+        <span id="time">00:00</span>
+    </h3>
+    <div class="scoreCard2" style="display: flex;">
+        <div class="d-flex justify-content-center align-items-center flex-column">
+            <div class="d-flex gap-3 user1">
+                {{ user.username }}: <span id="score1">0</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-center gap-3" style="width: 100%;">
+                <kbd>W</kbd>
+                <kbd>S</kbd>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center align-items-center flex-column">
+            <div class="d-flex gap-3 user2">
+                AI: <span id="score2">0</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-center gap-3" style="width: 100%;">
+                <kbd>UP</kbd>
+                <kbd>DOWN</kbd>
+            </div>
+        </div>
+    </div>
+    <div class="scoreCard4" style="display: none;">
+        <div class="d-flex justify-content-center align-items-center flex-column">
+            <div class="d-flex gap-3">
+                {{ user.username }}: <span id="score1">0</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-center gap-3" style="width: 100%;">
+                <kbd>W</kbd>
+                <kbd>S</kbd>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center align-items-center flex-column">
+            <div class="d-flex gap-3">
+                AI: <span id="score2">0</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-center gap-3" style="width: 100%;">
+                <kbd>UP</kbd>
+                <kbd>DOWN</kbd>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center align-items-center flex-column">
+            <div class="d-flex gap-3">
+                AI: <span id="score3">0</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-center gap-3" style="width: 100%;">
+                <kbd>A</kbd>
+                <kbd>D</kbd>
+            </div>
+        </div>
+        <div class="d-flex justify-content-center align-items-center flex-column">
+            <div class="d-flex gap-3">
+                AI: <span id="score4">0</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-center gap-3" style="width: 100%;">
+                <kbd>J</kbd>
+                <kbd>L</kbd>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="center">
+    <div class="bracket">
+        {% for match_id, match in bracket.items %}
+        <div class="match mb-4">
+            <p>Round {{ match.round }}</p>
+            <div class="matchPlayers">
+                <div class="participant">{{ match.players.0 }}</div>
+                <div class="participant">{{ match.players.1 }}</div>
+            </div>
+            <div class="center">
+                {% if match.playing %}
+                {% if match.players.0 != 'AI' and match.players.1 != 'AI' %}
+                <button
+                    onclick="startTournamentGame('{{ tournament.id }}', '{{ match_id }}', '{{match.players.0}}', '{{match.players.1}}', '1v1')">Start
+                    Match</button>
+                {% else %}
+                <button
+                    onclick="startTournamentGame('{{ tournament.id }}', '{{ match_id }}', '{{match.players.0}}', '{{match.players.1}}', '1vAI')">Start
+                    Match</button>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    window.addEventListener('keydown', function (event) {
+        if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+            event.preventDefault();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const btnClose = document.querySelectorAll('.btn-close-custom');
+
+        btnClose.forEach(button => {
+            button.addEventListener('click', () => {
+                console.log('Button clicked');
+                const alert = button.closest('.custom-alert');
+                if (alert) {
+                    alert.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    let canvas, ctx;
+    let player1, player2, player3, player4, ball;
+    let gameMode;
+    let score1 = 0, score2 = 0, score3 = 0, score4 = 0;
+    let ballHit = false;
+    let paddleSpeed = 1.5;
+    let gameLoopId;
+    let speedIntervalId;
+    let isGameRunning = false;
+    let maxScore = 5;
+    let maxTime = 3;
+    let timerId;
+    let rally = 0;
+    let totalSeconds = 0;
+    let timerActive = false;
+    let gameData = {
+        points: [],
+        finalScore: {},
+        players: [],
+        endTime: null
+    };
+    let randomdx = 0;
+    let randomdy = 0;
+
+    let playerName1 = "{{ user.username }}";
+    let playerName2 = "Player 2";
+    let playerName3 = "Player 3";
+    let playerName4 = "Player 4";
+    let tournamentId;
+    let matchId;
+
+    function resetGameState() {
+        score1 = 0;
+        score2 = 0;
+        score3 = 0;
+        score4 = 0;
+        ballHit = false;
+        paddleSpeed = 1.5;
+        gameLoopId = null;
+        speedIntervalId = null;
+        isGameRunning = false;
+        maxScore = 5;
+        maxTime = 3;
+        timerId = null;
+        rally = 0;
+        totalSeconds = 0;
+        timerActive = false;
+        gameData = {
+            points: [],
+            finalScore: {},
+            players: [],
+            endTime: null
+        };
+        let random = Math.random() * (1.25 - 0.75) + 0.75;
+        randomdx = 1 / random;
+        randomdy = 1 * random;
+        updateScoreboard();
+    }
+
+    function startTournamentGame(tournamentIdentifier, matchIdentifier, player1, player2, gameMode) {
+        resetTimer();
+        resetGameState();
+        playerName1 = player1;
+        playerName2 = player2;
+        tournamentId = tournamentIdentifier;
+        matchId = matchIdentifier;
+
+        document.getElementById('menu').style.display = 'none';
+
+        canvas = document.getElementById('gameCanvas');
+        ctx = canvas.getContext('2d');
+        canvas.style.display = 'block';
+
+        document.querySelector('.scoreboard').style.display = 'block';
+
+        document.querySelector('.user1').innerHTML = `${playerName1}: <span id="score1">0</span>`;
+        document.querySelector('.user2').innerHTML = `${playerName2}: <span id="score2">0</span>`;
+
+        if (gameMode === '1vAI') {
+            playerName2 = "AI";
+            document.querySelector('.user2').innerHTML = `AI: <span id="score2">0</span>`;
+        }
+
+        const maxScoreInput = 5;
+        const maxTimeInput = 3;
+
+        if (maxTimeInput) {
+            maxTime = parseInt(maxTimeInput) * 60 * 1000;
+        } else {
+            maxTime = null;
+        }
+
+        initializeGame();
+        startTimer();
+        isGameRunning = true;
+        gameLoopId = requestAnimationFrame(gameLoop);
+        speedIntervalId = setInterval(increaseSpeed, 60000);
+
+        if (maxTime) {
+            timerId = setTimeout(gameOver, maxTime);
+        }
+        gameLoop();
+    }
+
+    function startTimer() {
+        if (!timerActive) {
+            timerActive = true;
+            incrementTimer();
+        }
+    }
+
+    function stopTimer() {
+        timerActive = false;
+    }
+
+    function incrementTimer() {
+        if (timerActive) {
+            setTimeout(() => {
+                totalSeconds++;
+                updateTimerDisplay();
+                incrementTimer();
+            }, 1000);
+        }
+    }
+
+    function resetTimer() {
+        stopTimer();
+        totalSeconds = 0;
+        updateTimerDisplay();
+    }
+
+    function updateTimerDisplay() {
+        let minutes = Math.floor(totalSeconds / 60);
+        let seconds = totalSeconds % 60;
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+        seconds = seconds < 10 ? '0' + seconds : seconds;
+        document.getElementById('time').textContent = `${minutes}:${seconds}`;
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function initializeGame() {
+        const playerWidth = 5;
+        const playerHeight = 20;
+        const playerOffsetX = 5;
+        const playerMidOffsetY = canvas.height / 2 - playerHeight / 2;
+
+        const ballRadius = 3;
+
+
+        player1 = { x: playerOffsetX, y: playerMidOffsetY, width: playerWidth, height: playerHeight, dy: 0, visible: true };
+        player2 = { x: canvas.width - playerWidth - playerOffsetX, y: playerMidOffsetY, width: playerWidth, height: playerHeight, dy: 0, visible: true };
+        let random = Math.random() * (1.25 - 0.75) + 0.75;
+        randomdx = 1 / random;
+        randomdy = 1 * random;
+        console.log(randomdx);
+        console.log(randomdy);
+       
+        ball = { x: canvas.width / 2, y: canvas.height / 2, radius: ballRadius, dx: randomdx, dy: randomdy };
+
+        document.addEventListener('keydown', keyDownHandler);
+        document.addEventListener('keyup', keyUpHandler);
+        updateScoreboard();
+    }
+
+    function keyDownHandler(e) {
+        if (e.key === 'ArrowUp') player2.dy = -paddleSpeed;
+        if (e.key === 'ArrowDown') player2.dy = paddleSpeed;
+        if (e.key === 'w') player1.dy = -paddleSpeed;
+        if (e.key === 's') player1.dy = paddleSpeed;
+    }
+
+    function keyUpHandler(e) {
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') player2.dy = 0;
+        if (e.key === 'w' || e.key === 's') player1.dy = 0;
+    }
+
+    function gameLoop() {
+        if (isGameRunning) {
+            update();
+            render();
+        }
+        gameLoopId = requestAnimationFrame(gameLoop);
+    }
+
+    function update() {
+        player1.y += player1.dy;
+        player2.y += player2.dy;
+
+        if (gameMode === '1vAI') {
+            if (ball.y < player2.y + player2.height / 2) {
+                player2.dy = -paddleSpeed;
+            } else if (ball.y > player2.y + player2.height / 2) {
+                player2.dy = paddleSpeed;
+            } else {
+                player2.dy = 0;
+            }
+        }
+
+        if (player1.y < 0) player1.y = 0;
+        if (player1.y + player1.height > canvas.height) player1.y = canvas.height - player1.height;
+        if (player2.y < 0) player2.y = 0;
+        if (player2.y + player2.height > canvas.height) player2.y = canvas.height - player2.height;
+
+        ball.x += ball.dx;
+        ball.y += ball.dy;
+
+        if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0) {
+            ball.dy *= -1;
+        }
+
+        if (ball.x - ball.radius < player1.x + player1.width && ball.y > player1.y && ball.y < player1.y + player1.height) {
+            ball.dx *= -1;
+            ball.x = player1.x + player1.width + ball.radius;
+            rally++;
+            ballHit = true;
+        } else if (ball.x < player1.x) {
+            score2++;
+            addPoint(rally, playerName2, totalSeconds);
+            resetBall();
+        }
+
+        if (ball.x + ball.radius > player2.x && ball.y > player2.y && ball.y < player2.y + player2.height) {
+            ball.dx *= -1;
+            ball.x = player2.x - ball.radius;
+            rally++;
+            ballHit = true;
+        } else if (ball.x > player2.x + player2.width) {
+            score1++;
+            addPoint(rally, playerName1, totalSeconds);
+            resetBall();
+        }
+
+        updateScoreboard();
+
+        if (score1 >= maxScore) {
+            gameOver(playerName1);
+        }
+        else if (score2 >= maxScore) {
+            gameOver(playerName2);
+        }
+    }
+
+    function resetBall() {
+        let max = 2;
+        let min = 1;
+        ball.x = canvas.width / 2;
+        ball.y = canvas.height / 2;
+        ball.dx *= -1;
+        ball.dy *= -1;
+
+        rally = 0;
+        ballHit = false;
+    }
+
+    function addPoint(rally, scorer, totalSeconds) {
+        let pointData = {
+            rally: rally,
+            scorer: scorer,
+            time: totalSeconds
+        };
+        gameData.points.push(pointData);
+    }
+
+    function buildJson() {
+        gameData.finalScore = {
+            player1: score1,
+            player2: score2,
+        };
+
+        gameData.players = [playerName1, playerName2];
+
+        gameData.endTime = totalSeconds;
+
+        gameData.typeGame = 'Tournament';
+
+        return gameData;
+    }
+
+    function updateScoreboard() {
+        document.getElementById('score1').innerText = score1;
+        document.getElementById('score2').innerText = score2;
+    }
+
+    function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = '#FF6B00';
+        ctx.fillRect(player1.x, player1.y, player1.width, player1.height);
+        ctx.fillRect(player2.x, player2.y, player2.width, player2.height);
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    function increaseSpeed() {
+        ball.dx *= 1.1;
+        ball.dy *= 1.1;
+    }
+
+    function gameOver(winnerName) {
+        isGameRunning = false;
+        stopTimer();
+        cancelAnimationFrame(gameLoopId);
+        clearInterval(speedIntervalId);
+        if (timerId) {
+            clearTimeout(timerId);
+        }
+        if (gameMode !== '1v1v1v1') {
+            let jsonData = buildJson();
+            console.log(JSON.stringify(jsonData, null, 2));
+
+            let winner = winnerName;
+            fetch('/users/submit-game-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(jsonData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            fetch(`/tournament/${tournamentId}/update_playing_status/${matchId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Winner': winner
+                },
+                body: JSON.stringify({ playing: false })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        console.log('Playing status updated successfully');
+                        loadContent(window.location.pathname);
+                    } else {
+                        console.error('Failed to update playing status');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+
+        }
+    }
+    const contentDiv = document.getElementById('content');
+
+    function loadContent(url, addToHistory = true) {
+        document.getElementById('loadingOverlay').style.display = 'block';
+
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(response => response.text())
+            .then(html => {
+                contentDiv.innerHTML = '';
+                contentDiv.innerHTML = html;
+                if (addToHistory) {
+                    history.pushState({ url: url }, '', url);
+                }
+                attachEventListeners();
+                document.dispatchEvent(new Event('spaContentLoaded'));
+                document.getElementById('loadingOverlay').style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error loading content:', error);
+                contentDiv.innerHTML = '<p>Error loading content. Please try again.</p>';
+                document.getElementById('loadingOverlay').style.display = 'none';
+            });
+    }
+
+    function attachEventListeners() {
+        document.querySelectorAll('a[data-url]').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const url = this.getAttribute('data-url');
+                loadContent(url);
+            });
+        })
+    }
+</script>
+{% endblock %}

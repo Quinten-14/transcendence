@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Pong Game</title>
+	<style>
+		.gameBody {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 650px;
+			background-color: #121212;
+			color: #FFFFFF;
+			font-family: Arial, sans-serif;
+			margin: 0;
+			width: 650px;
+			margin-top: 30px;
+			border-radius: 10px;
+		}
+
+		#menu {
+			text-align: center;
+			display: flex;
+			width: 100%;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.gameBody button {
+			display: block;
+			margin: 10px auto;
+			padding: 10px 20px;
+			font-size: 16px;
+			cursor: pointer;
+			background-color: #4CAF50;
+			color: white;
+			border: none;
+			border-radius: 5px;
+			transition: background-color 0.3s ease;
+		}
+
+		input[type="number"] {
+			display: block;
+			margin: 10px auto;
+			padding: 10px;
+			font-size: 16px;
+			border: 2px solid #4CAF50;
+			border-radius: 5px;
+			background-color: #333;
+			color: white;
+			text-align: center;
+			outline: none;
+			transition: border-color 0.3s ease;
+		}
+
+		input[type="number"]:focus {
+			border-color: #FF6B00;
+		}
+
+		.gameBody button:hover {
+			background-color: #FF6B00;
+		}
+
+		canvas {
+			display: none;
+			height: 650px;
+			width: 650px;
+			border-radius: 10px;
+		}
+
+		#gameOver {
+			display: none;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			font-size: 32px;
+			color: #FF6B00;
+			background-color: rgba(0, 0, 0, 0.7);
+			padding: 20px 40px;
+			border-radius: 10px;
+			border: 2px solid #FF6B00;
+			box-shadow: 0px 10px 10px -5px rgba(0, 0, 0, 0.5);
+			text-align: center;
+			font-family: 'Press Start 2P', cursive;
+		}
+
+		.indexBody {
+			color: #FFFFFF;
+			font-family: Arial, sans-serif;
+			margin: 0;
+			padding: 0;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			width: 100%;
+			gap: 10px;
+			flex-direction: column;
+		}
+
+		#authMenu {
+			flex-direction: column;
+		}
+
+		#authMenu input {
+			display: block;
+			margin: 10px auto;
+			padding: 10px;
+			font-size: 16px;
+			border: 2px solid #4CAF50;
+			border-radius: 5px;
+			background-color: #333;
+			color: white;
+			text-align: center;
+			outline: none;
+			transition: border-color 0.3s ease;
+		}
+
+		#authMenu input:focus {
+			border-color: #FF6B00;
+		}
+
+		#authMenu button {
+			display: block;
+			margin: 10px auto;
+			padding: 10px 20px;
+			font-size: 16px;
+			cursor: pointer;
+			background-color: #4CAF50;
+			color: white;
+			border: none;
+			border-radius: 5px;
+			transition: background-color 0.3s ease;
+		}
+
+		#authMenu button:hover {
+			background-color: #FF6B00;
+		}
+
+		.scoreboard {
+			width: 650px;
+			height: 150px;
+			background-color: #333;
+			border-radius: 10px;
+		}
+
+		.scoreCard2 {
+			display: flex;
+			justify-content: space-around;
+			align-items: center;
+			padding: 0px;
+			font-size: 20px;
+		}
+
+		.scoreCard2 span {
+			color: #FF6B00;
+		}
+
+		.scoreCard4 {
+			display: flex;
+			justify-content: space-around;
+			align-items: center;
+			padding: 20px;
+			font-size: 16px;
+		}
+
+		.scoreCard4 span {
+			color: #FF6B00;
+		}
+
+		.timeSection {
+			text-align: center;
+			font-size: 24px;
+			color: #FF6B00;
+			margin-top: 10px;
+		}
+
+		.tournamentBtn {
+			display: block;
+			margin: 10px auto;
+			padding: 10px 20px;
+			font-size: 16px;
+			cursor: pointer;
+			background-color: #4CAF50;
+			color: white;
+			border: none;
+			border-radius: 5px;
+			transition: background-color 0.3s ease;
+			text-decoration: none;
+		}
+
+		.tournamentBtn:hover {
+			background-color: #FF6B00;
+		}
+	</style>
+	<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+
+<div class="indexBody">
+	<div class="gameBody">
+		{% if user.is_authenticated %}
+		<audio id="hitSound" src="https://www.myinstants.com/media/sounds/pew_pew-dknight556-1379997159.mp3"
+			preload="auto"></audio>
+		<div id="menu">
+			<h1>Pong Game</h1>
+			<div class="d-flex mt-4 gap-5">
+				<div>
+					<label for=" maxScore">Max Score:</label>
+					<input type="number" id="maxScore" min="3" max="15" value="5">
+					<label>(3-15)</label>
+				</div>
+				<div>
+					<label for="maxTime">Max Time:</label>
+					<input type="number" id="maxTime" min="1" max="15" value="3">
+					<label>(1-15)</label>
+				</div>
+			</div>
+			<div class="mt-4">
+				<h5>Gamemodes</h5>
+				<div class=" gameModes d-flex gap-3">
+					<button onclick="startGame('1v1')">1 v 1</button>
+					<button onclick="startGame('1v1v1v1')">4 Player Pong (Casual only)</button>
+					<button onclick="startGame('1vAI')">1 v AI</button>
+				</div>
+				<a class="tournamentBtn" href="#" onclick="loadContent('{% url 'hostTournament' %}')">Host a tournament</a>
+			</div>
+		</div>
+		<div id="authMenu" style="display: none;">
+			<p>Please authenticate Player 2:</p>
+			<input type="text" id="player2Username" placeholder="Username">
+			<input type="password" id="player2Password" placeholder="Password">
+			<div id="otpInput" style="display:none;">
+				<input type="text" id="otpCode" name="otpCode" placeholder="Enter OTP">
+				<!-- Added name="otpCode" -->
+				<button class="mb-2" onclick="submitOTP()">Submit OTP</button>
+			</div>
+			<button onclick="authenticatePlayer2()">Use password</button>
+			<button onclick="addPlayerIntra()">Use mail OTP</button>
+		</div>
+		<div id="gameOver"></div>
+		<canvas id="gameCanvas"></canvas>
+		{% else %}
+		<h3>Log in to play</h3>
+		{% endif %}
+	</div>
+	<div class="scoreboard" style="display: none;">
+		<h3 class="timeSection">
+			<span id="time">00:00</span>
+		</h3>
+		<div class="scoreCard2" style="display: flex;">
+			<div class="d-flex justify-content-center align-items-center flex-column">
+				<div class="d-flex gap-3">
+					{{ user.username }}: <span id="score1">0</span>
+				</div>
+				<div class="d-flex align-items-center justify-content-center gap-3" style="width: 100%;">
+					<kbd>W</kbd>
+					<kbd>S</kbd>
+				</div>
+			</div>
+			<div class="d-flex justify-content-center align-items-center flex-column">
+				<div class="d-flex gap-3 user2">
+					AI: <span id="score2">0</span>
+				</div>
+				<div class="d-flex align-items-center justify-content-center gap-3" style="width: 100%;">
+					<kbd>UP</kbd>
+					<kbd>DOWN</kbd>
+				</div>
+			</div>
+		</div>
+		<div class="scoreCard4" style="display: none;">
+			<div class="d-flex justify-content-center align-items-center flex-column">
+				<div class="d-flex gap-3">
+					{{ user.username }}: <span id="score3">0</span>
+				</div>
+				<div class="d-flex align-items-center justify-content-center gap-3" style="width: 100%;">
+					<kbd>W</kbd>
+					<kbd>S</kbd>
+				</div>
+			</div>
+			<div class="d-flex justify-content-center align-items-center flex-column">
+				<div class="d-flex gap-3">
+					AI: <span id="score4">0</span>
+				</div>
+				<div class="d-flex align-items-center justify-content-center gap-3" style="width: 100%;">
+					<kbd>UP</kbd>
+					<kbd>DOWN</kbd>
+				</div>
+			</div>
+			<div class="d-flex justify-content-center align-items-center flex-column">
+				<div class="d-flex gap-3">
+					AI: <span id="score5">0</span>
+				</div>
+				<div class="d-flex align-items-center justify-content-center gap-3" style="width: 100%;">
+					<kbd>A</kbd>
+					<kbd>D</kbd>
+				</div>
+			</div>
+			<div class="d-flex justify-content-center align-items-center flex-column">
+				<div class="d-flex gap-3">
+					AI: <span id="score6">0</span>
+				</div>
+				<div class="d-flex align-items-center justify-content-center gap-3" style="width: 100%;">
+					<kbd>J</kbd>
+					<kbd>L</kbd>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		let canvas, ctx;
+		let player1, player2, player3, player4, ball;
+		let gameMode;
+		let score1 = 0, score2 = 0, score3 = 0, score4 = 0;
+		let ballHit = false;
+		let paddleSpeed = 1.5;
+		let gameLoopId;
+		let speedIntervalId;
+		let isGameRunning = false;
+		let maxScore = 5;
+		let maxTime = 3;
+		let timerId;
+		let rally = 0;
+		let totalSeconds = 0;
+		let timerActive = false;
+		let gameData = {
+			points: [],
+			finalScore: {},
+			players: [],
+			endTime: null
+		};
+		let lasthit = 0;
+
+		let playerName1 = "{{ user.username }}";
+		let playerName2 = "Player 2";
+		let playerName3 = "Player 3";
+		let playerName4 = "Player 4";
+
+		function resetGameState() {
+			score1 = 0;
+			score2 = 0;
+			score3 = 0;
+			score4 = 0;
+			ballHit = false;
+			paddleSpeed = 1.5;
+			gameLoopId = null;
+			speedIntervalId = null;
+			isGameRunning = false;
+			maxScore = 5;
+			maxTime = 3;
+			timerId = null;
+			rally = 0;
+			totalSeconds = 0;
+			timerActive = false;
+			gameData = {
+				points: [],
+				finalScore: {},
+				players: [],
+				endTime: null
+			};
+			updateScoreboard();
+		}
+
+		function startGame(mode) {
+			resetGameState();
+			resetTimer();
+			gameMode = mode;
+			document.getElementById('menu').style.display = 'none';
+
+			if (gameMode === '1v1') {
+				document.getElementById('authMenu').style.display = 'flex';
+				return;
+			}
+			canvas = document.getElementById('gameCanvas');
+			ctx = canvas.getContext('2d');
+			canvas.style.display = 'block';
+
+			document.querySelector('.scoreboard').style.display = 'block';
+
+			if (gameMode === '1vAI') {
+				playerName2 = "AI";
+				document.querySelector('.user2').innerHTML = `AI: <span id="score2">0</span>`;
+			}
+
+			if (gameMode === '1v1v1v1') {
+				document.querySelector('.scoreCard2').style.display = 'none';
+				document.querySelector('.scoreCard4').style.display = 'flex';
+			}
+
+
+			const maxScoreInput = document.getElementById('maxScore').value;
+			const maxTimeInput = document.getElementById('maxTime').value;
+			if (maxScoreInput) {
+				maxScore = parseInt(maxScoreInput);
+			} else {
+				maxScore = 5;
+			}
+
+			if (maxTimeInput) {
+				maxTime = parseInt(maxTimeInput) * 60 * 1000;
+			} else {
+				maxTime = null;
+			}
+
+			initializeGame();
+			startTimer();
+			isGameRunning = true;
+			gameLoopId = requestAnimationFrame(gameLoop);
+			speedIntervalId = setInterval(increaseSpeed, 60000);
+
+			if (maxTime) {
+				timerId = setTimeout(gameOver, maxTime);
+			}
+		}
+
+		function startTimer() {
+			if (!timerActive) {
+				timerActive = true;
+				incrementTimer();
+			}
+		}
+
+		function stopTimer() {
+			timerActive = false;
+		}
+
+		function incrementTimer() {
+			if (timerActive) {
+				setTimeout(() => {
+					totalSeconds++;
+					updateTimerDisplay();
+					incrementTimer();
+				}, 1000);
+			}
+		}
+
+		function resetTimer() {
+			stopTimer();
+			totalSeconds = 0;
+			updateTimerDisplay();
+		}
+
+		function updateTimerDisplay() {
+			let minutes = Math.floor(totalSeconds / 60);
+			let seconds = totalSeconds % 60;
+			minutes = minutes < 10 ? '0' + minutes : minutes;
+			seconds = seconds < 10 ? '0' + seconds : seconds;
+			document.getElementById('time').textContent = `${minutes}:${seconds}`;
+		}
+
+		function authenticatePlayer2() {
+			const username = document.getElementById('player2Username').value;
+			const password = document.getElementById('player2Password').value;
+
+			if (!username || !password) {
+				alert('Please enter both username and password.');
+				return;
+			}
+
+			fetch('users/player2auth', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+					'X-CSRFToken': getCookie('csrftoken')
+				},
+				body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+			})
+				.then(response => response.json())
+				.then(data => {
+					if (data.status) {
+						document.getElementById('authMenu').style.display = 'none';
+						canvas = document.getElementById('gameCanvas');
+						ctx = canvas.getContext('2d');
+						canvas.style.display = 'block';
+						const maxScoreInput = document.getElementById('maxScore').value;
+						const maxTimeInput = document.getElementById('maxTime').value;
+						document.querySelector('.scoreboard').style.display = 'block';
+						playerName2 = username;
+						document.querySelector('.user2').innerHTML = `${username}: <span id="score2">0</span>`;
+						if (maxScoreInput) {
+							maxScore = parseInt(maxScoreInput);
+						} else {
+							maxScore = 5;
+						}
+
+						if (maxTimeInput) {
+							maxTime = parseInt(maxTimeInput) * 60 * 1000;
+						} else {
+							maxTime = null;
+						}
+
+						initializeGame();
+						startTimer();
+						isGameRunning = true;
+						gameLoopId = requestAnimationFrame(gameLoop);
+						speedIntervalId = setInterval(increaseSpeed, 60000);
+
+						if (maxTime) {
+							timerId = setTimeout(gameOver, maxTime);
+						}
+
+					} else if (data.username) {
+						alert('You cannot log in twice.');
+					}
+					else {
+						alert('Authentication failed. Please try again.');
+					}
+				});
+		}
+
+		function submitOTP() {
+			const otpCode = document.getElementById('otpCode').value;
+			const username = document.getElementById('player2Username').value;
+
+			fetch('/users/confirmOtp', { // Replace '/users/verifyOTP' with the actual URL for OTP verification
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+					'X-CSRFToken': getCookie('csrftoken') // Reuse the getCookie function to include CSRF token
+				},
+				body: `username=${encodeURIComponent(username)}&code=${encodeURIComponent(otpCode)}`
+			})
+				.then(response => response.json())
+				.then(data => {
+					if (data.status === 'verified') {
+						// Handle verification success
+						document.getElementById('authMenu').style.display = 'none';
+						document.getElementById('otpInput').style.display = 'none';
+						canvas = document.getElementById('gameCanvas');
+						ctx = canvas.getContext('2d');
+						canvas.style.display = 'block';
+						const maxScoreInput = document.getElementById('maxScore').value;
+						const maxTimeInput = document.getElementById('maxTime').value;
+						document.querySelector('.scoreboard').style.display = 'block';
+						playerName2 = username;
+						document.querySelector('.user2').innerHTML = `${username}: <span id="score2">0</span>`;
+						if (maxScoreInput) {
+							maxScore = parseInt(maxScoreInput);
+						} else {
+							maxScore = 5;
+						}
+
+						if (maxTimeInput) {
+							maxTime = parseInt(maxTimeInput) * 60 * 1000;
+						} else {
+							maxTime = null;
+						}
+
+						initializeGame();
+						startTimer();
+						isGameRunning = true;
+						gameLoopId = requestAnimationFrame(gameLoop);
+						speedIntervalId = setInterval(increaseSpeed, 60000);
+
+						if (maxTime) {
+							timerId = setTimeout(gameOver, maxTime);
+						}
+					} else {
+						// Handle verification failure
+						alert('Error or other status: ' + data.status + ' - ' + data.message); // Add detailed message here
+					}
+				})
+				.catch((error) => {
+					console.error('Error:', error);
+					alert('An error occurred. Please try again.');
+				});
+		}
+
+		function addPlayerIntra() {
+			const username = document.getElementById('player2Username').value;
+
+			fetch('/users/player2auth', { // Replace '/path/to/player2auth' with the actual URL
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+					'X-CSRFToken': getCookie('csrftoken') // Ensure CSRF token is included if needed
+				},
+				body: `username=${encodeURIComponent(username)}`
+			})
+				.then(response => response.json())
+				.then(data => {
+					if (data.status === 'otp_sent') {
+						// OTP sent, show the OTP input field
+						document.getElementById('otpInput').style.display = 'block';
+					} else {
+						// Handle other statuses (e.g., error, username already exists, etc.)
+						alert('Error or other status: ' + data.status);
+					}
+				})
+				.catch((error) => {
+					console.error('Error:', error);
+				});
+		}
+
+
+		function getCookie(name) {
+			let cookieValue = null;
+			if (document.cookie && document.cookie !== '') {
+				const cookies = document.cookie.split(';');
+				for (let i = 0; i < cookies.length; i++) {
+					const cookie = cookies[i].trim();
+					if (cookie.substring(0, name.length + 1) === (name + '=')) {
+						cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+						break;
+					}
+				}
+			}
+			return cookieValue;
+		}
+
+		function initializeGame() {
+			const playerWidth = 5;
+			const playerHeight = 20;
+			const playerOffsetX = 5;
+			const playerMidOffsetY = canvas.height / 2 - playerHeight / 2;
+
+			const ballRadius = 3;
+
+			const player3and4Width = 40;
+			const player3and4Height = 3;
+			const player3and4OffsetY = 5;
+			const player3and4MidOffsetX = canvas.width / 2 - player3and4Width / 2;
+
+
+			player1 = { x: playerOffsetX, y: playerMidOffsetY, width: playerWidth, height: playerHeight, dy: 0, visible: true };
+			player2 = { x: canvas.width - playerWidth - playerOffsetX, y: playerMidOffsetY, width: playerWidth, height: playerHeight, dy: 0, visible: true };
+
+			if (gameMode === '1v1v1v1') {
+				player3 = { x: player3and4MidOffsetX, y: player3and4OffsetY, width: player3and4Width, height: player3and4Height, dx: 0, visible: true };
+				player4 = { x: player3and4MidOffsetX, y: canvas.height - player3and4Height - player3and4OffsetY, width: player3and4Width, height: player3and4Height, dx: 0, visible: true };
+			} else {
+				player3 = { x: 0, y: 0 * player3and4OffsetY, width: canvas.width, height: player3and4Height, dx: 0, visible: false };
+				player4 = { x: 0, y: canvas.height - player3and4Height - (0 * player3and4OffsetY), width: canvas.width, height: player3and4Height, dx: 0, visible: false };
+			}
+			let random = Math.random() * (1.25 - 0.75) + 1;
+			let randomdx = 1 / random;
+			let randomdy = 1 * random;
+			ball = { x: canvas.width / 2, y: canvas.height / 2, radius: ballRadius, dx: randomdx, dy: randomdy };
+
+			document.addEventListener('keydown', keyDownHandler);
+			document.addEventListener('keyup', keyUpHandler);
+			updateScoreboard();
+		}
+
+		function keyDownHandler(e) {
+			if (e.key === 'ArrowUp') player2.dy = -paddleSpeed;
+			if (e.key === 'ArrowDown') player2.dy = paddleSpeed;
+			if (e.key === 'w') player1.dy = -paddleSpeed;
+			if (e.key === 's') player1.dy = paddleSpeed;
+			if (gameMode === '1v1v1v1') {
+				if (e.key === 'a') player3.dx = -paddleSpeed;
+				if (e.key === 'd') player3.dx = paddleSpeed;
+				if (e.key === 'j') player4.dx = -paddleSpeed;
+				if (e.key === 'l') player4.dx = paddleSpeed;
+			}
+		}
+
+		function keyUpHandler(e) {
+			if (e.key === 'ArrowUp' || e.key === 'ArrowDown') player2.dy = 0;
+			if (e.key === 'w' || e.key === 's') player1.dy = 0;
+			if (gameMode === '1v1v1v1') {
+				if (e.key === 'a' || e.key === 'd') player3.dx = 0;
+				if (e.key === 'j' || e.key === 'l') player4.dx = 0;
+			}
+		}
+
+		function gameLoop() {
+			if (isGameRunning) {
+				update();
+				render();
+			}
+			gameLoopId = requestAnimationFrame(gameLoop);
+		}
+
+		function update() {
+			player1.y += player1.dy;
+			player2.y += player2.dy;
+			if (gameMode === '1v1v1v1') {
+				player3.x += player3.dx;
+				player4.x += player4.dx;
+			}
+
+			if (gameMode === '1vAI') {
+				if (ball.y < player2.y + player2.height / 2) {
+					player2.dy = -paddleSpeed;
+				} else if (ball.y > player2.y + player2.height / 2) {
+					player2.dy = paddleSpeed;
+				} else {
+					player2.dy = 0;
+				}
+			}
+
+			if (player1.y < 0) player1.y = 0;
+			if (player1.y + player1.height > canvas.height) player1.y = canvas.height - player1.height;
+			if (player2.y < 0) player2.y = 0;
+			if (player2.y + player2.height > canvas.height) player2.y = canvas.height - player2.height;
+			if (gameMode === '1v1v1v1') {
+				if (player3.x < 0) player3.x = 0;
+				if (player3.x + player3.width > canvas.width) player3.x = canvas.width - player3.width;
+				if (player4.x < 0) player4.x = 0;
+				if (player4.x + player4.width > canvas.width) player4.x = canvas.width - player4.width;
+			}
+
+			ball.x += ball.dx;
+			ball.y += ball.dy;
+
+			if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0) {
+				ball.dy *= -1;
+			}
+
+			if (ball.x - ball.radius < player1.x + player1.width && ball.y > player1.y && ball.y < player1.y + player1.height) {
+				ball.dx *= -1;
+				ball.x = player1.x + player1.width + ball.radius;
+				rally++;
+				ballHit = true;
+				lasthit = 1;
+			} else if (ball.x < player1.x) {
+				if (lasthit === 1)
+					score1++;
+				else if (lasthit === 2)
+					score2++;
+				else if (lasthit === 3)
+					score3++;
+				else if (lasthit === 4)
+					score4++;
+				addPoint(rally, playerName2, totalSeconds);
+				resetBall();
+			}
+
+			if (ball.x + ball.radius > player2.x && ball.y > player2.y && ball.y < player2.y + player2.height) {
+				ball.dx *= -1;
+				ball.x = player2.x - ball.radius;
+				rally++;
+				ballHit = true;
+				lasthit = 2;
+			} else if (ball.x > player2.x + player2.width) {
+				if (lasthit === 1)
+					score1++;
+				else if (lasthit === 2)
+					score2++;
+				else if (lasthit === 3)
+					score3++;
+				else if (lasthit === 4)
+					score4++;
+				addPoint(rally, playerName1, totalSeconds);
+				resetBall();
+			}
+
+			if (ball.y - ball.radius < player3.y + player3.height && ball.x > player3.x && ball.x < player3.x + player3.width) {
+				ball.dy *= -1;
+				ball.y = player3.y + player3.height + ball.radius;
+				ballHit = true;
+				if (gameMode === '1v1v1v1') {
+					lasthit = 3;
+				}
+			} else if (ball.y < player3.y) {
+				if (gameMode === '1v1v1v1') {
+					if (lasthit === 1)
+						score1++;
+					else if (lasthit === 2)
+						score2++;
+					else if (lasthit === 3)
+						score3++;
+					else if (lasthit === 4)
+						score4++;
+					addPoint(rally, playerName4, totalSeconds);
+				}
+				resetBall();
+			}
+
+			if (ball.y + ball.radius > player4.y && ball.x > player4.x && ball.x < player4.x + player4.width) {
+				ball.dy *= -1;
+				ball.y = player4.y - ball.radius;
+				ballHit = true;
+				if (gameMode === '1v1v1v1') {
+					lasthit = 4;
+				}
+			} else if (ball.y > player4.y + player4.height) {
+				if (gameMode === '1v1v1v1') {
+					if (lasthit === 1)
+						score1++;
+					else if (lasthit === 2)
+						score2++;
+					else if (lasthit === 3)
+						score3++;
+					else if (lasthit === 4)
+						score4++;
+
+					addPoint(rally, playerName3, totalSeconds);
+				}
+				resetBall();
+			}
+
+			updateScoreboard();
+
+			if (score1 >= maxScore || score2 >= maxScore || score3 >= maxScore || score4 >= maxScore) {
+				gameOver();
+			}
+		}
+
+		function resetBall() {
+			let max = 2;
+			let min = 1;
+			ball.x = canvas.width / 2;
+			ball.y = canvas.height / 2;
+			ball.dx *= -1;
+			ball.dy *= -1;
+			lasthit = 0;
+
+			rally = 0;
+			ballHit = false;
+		}
+
+		function addPoint(rally, scorer, totalSeconds) {
+			let pointData = {
+				rally: rally,
+				scorer: scorer,
+				time: totalSeconds
+			};
+
+			gameData.points.push(pointData);
+
+
+		}
+		function buildJson() {
+			gameData.finalScore = {
+				player1: score1,
+				player2: score2,
+			};
+
+			gameData.players = [playerName1, playerName2];
+
+			gameData.endTime = totalSeconds;
+
+			gameData.typeGame = 'Pickup';
+
+			return gameData;
+		}
+
+		function updateScoreboard() {
+			if (gameMode !== '1v1v1v1') {
+				document.getElementById('score1').innerText = score1;
+				document.getElementById('score2').innerText = score2;
+			}
+			else {
+				document.getElementById('score3').innerText = score1;
+				document.getElementById('score4').innerText = score2;
+				document.getElementById('score5').innerText = score3;
+				document.getElementById('score6').innerText = score4;
+			}
+		}
+
+		function render() {
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+
+			ctx.fillStyle = '#FF6B00';
+			ctx.fillRect(player1.x, player1.y, player1.width, player1.height);
+			ctx.fillRect(player2.x, player2.y, player2.width, player2.height);
+			if (player3.visible) {
+				ctx.fillRect(player3.x, player3.y, player3.width, player3.height);
+			}
+			if (player4.visible) {
+				ctx.fillRect(player4.x, player4.y, player4.width, player4.height);
+			}
+
+
+			ctx.fillStyle = '#FFFFFF';
+			ctx.beginPath();
+			ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+			ctx.fill();
+			ctx.closePath();
+		}
+
+		function increaseSpeed() {
+			ball.dx *= 1.1;
+			ball.dy *= 1.1;
+		}
+
+		function gameOver() {
+			isGameRunning = false;
+			stopTimer();
+			cancelAnimationFrame(gameLoopId);
+			clearInterval(speedIntervalId);
+			if (timerId) {
+				clearTimeout(timerId);
+			}
+			if (gameMode !== '1v1v1v1') {
+				let jsonData = buildJson();
+				console.log(JSON.stringify(jsonData, null, 2));
+				fetch('users/submit-game-data', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRFToken': getCookie('csrftoken')
+					},
+					body: JSON.stringify(jsonData)
+				})
+					.then(response => response.json())
+					.then(data => {
+						if (data.redirect) {
+							loadContent('/');
+						}
+						console.log('Success:', data);
+					})
+					.catch((error) => {
+						console.error('Error:', error);
+					});
+			}
+			loadContent('/');
+		}
+
+		function loadContent(url, addToHistory = true) {
+			document.getElementById('loadingOverlay').style.display = 'block';
+			const contentDiv = document.getElementById('content');
+
+			fetch(url, {
+				headers: {
+					'X-Requested-With': 'XMLHttpRequest'
+				}
+			})
+				.then(response => response.text())
+				.then(html => {
+					contentDiv.innerHTML = html;
+					if (addToHistory) {
+						history.pushState({ url: url }, '', url);
+					}
+					attachEventListeners();
+					attachButtonListeners(); // Re-attach button event listeners
+					executeScripts(contentDiv);
+					document.dispatchEvent(new Event('spaContentLoaded'));
+					document.getElementById('loadingOverlay').style.display = 'none';
+				})
+				.catch(error => {
+					console.error('Error loading content:', error);
+					contentDiv.innerHTML = '<p>Error loading content. Please try again.</p>';
+					document.getElementById('loadingOverlay').style.display = 'none';
+				});
+		}
+
+		function attachEventListeners() {
+			document.querySelectorAll('a[data-url]').forEach(link => {
+				link.addEventListener('click', function (e) {
+					e.preventDefault();
+					const url = this.getAttribute('data-url');
+					loadContent(url);
+				});
+			});
+		}
+
+		function attachButtonListeners() {
+			document.querySelectorAll('button').forEach(button => {
+				button.addEventListener('click', function (e) {
+					// Your button click handler logic here
+					console.log('Button clicked:', e.target);
+				});
+			});
+		}
+
+		function executeScripts(element) {
+		    const scripts = element.querySelectorAll('script');
+    		scripts.forEach(script => {
+    		    const newScript = document.createElement('script');
+    		    if (script.src) {
+    		        newScript.src = script.src;
+    		    } else {
+    		        newScript.textContent = script.textContent;
+    		    }
+    		    document.head.appendChild(newScript).parentNode.removeChild(newScript);
+    		});
+		}
+
+		// Initial call to attach event listeners
+		attachEventListeners();
+		attachButtonListeners();
+
+	</script>
+
+</html>
