@@ -7,6 +7,7 @@ def translate_text(text, target_language):
         
     if target_language == 'nl':
         return text
+    return text
     # os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r"/app/mainApp/googlekey.json"
     # translate_client = translate.Client()
 

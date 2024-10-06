@@ -289,7 +289,7 @@
                     const path = `/tournament/${tournamentId}/bracket/`;
 
                     // redirect to the path
-                    window.location.href = path;
+                    loadContent(path);
 
                     // Handle successful addition (e.g., update UI)
                 } else {
@@ -387,6 +387,344 @@
             });
         });
     });
+
+    function resetGameState() {
+        score1 = 0;
+        score2 = 0;
+        score3 = 0;
+        score4 = 0;
+        ballHit = false;
+        paddleSpeed = 1.5;
+        gameLoopId = null;
+        speedIntervalId = null;
+        isGameRunning = false;
+        maxScore = 5;
+        maxTime = 3;
+        timerId = null;
+        rally = 0;
+        totalSeconds = 0;
+        timerActive = false;
+        gameData = {
+            points: [],
+            finalScore: {},
+            players: [],
+            endTime: null
+        };
+        let random = Math.random() * (1.25 - 0.75) + 0.75;
+        randomdx = 1 / random;
+        randomdy = 1 * random;
+        updateScoreboard();
+    }
+
+    function startTournamentGame(tournamentIdentifier, matchIdentifier, player1, player2, gameMode) {
+        resetTimer();
+        resetGameState();
+        playerName1 = player1;
+        playerName2 = player2;
+        tournamentId = tournamentIdentifier;
+        matchId = matchIdentifier;
+
+        document.getElementById('menu').style.display = 'none';
+
+        canvas = document.getElementById('gameCanvas');
+        ctx = canvas.getContext('2d');
+        canvas.style.display = 'block';
+
+        document.querySelector('.scoreboard').style.display = 'block';
+
+        document.querySelector('.user1').innerHTML = `${playerName1}: <span id="score1">0</span>`;
+        document.querySelector('.user2').innerHTML = `${playerName2}: <span id="score2">0</span>`;
+
+        if (gameMode === '1vAI') {
+            playerName2 = "AI";
+            document.querySelector('.user2').innerHTML = `AI: <span id="score2">0</span>`;
+        }
+
+        const maxScoreInput = 5;
+        const maxTimeInput = 3;
+
+        if (maxTimeInput) {
+            maxTime = parseInt(maxTimeInput) * 60 * 1000;
+        } else {
+            maxTime = null;
+        }
+
+        initializeGame();
+        startTimer();
+        isGameRunning = true;
+        gameLoopId = requestAnimationFrame(gameLoop);
+        speedIntervalId = setInterval(increaseSpeed, 60000);
+
+        if (maxTime) {
+            timerId = setTimeout(gameOver, maxTime);
+        }
+        gameLoop();
+    }
+
+    function startTimer() {
+        if (!timerActive) {
+            timerActive = true;
+            incrementTimer();
+        }
+    }
+
+    function stopTimer() {
+        timerActive = false;
+    }
+
+    function incrementTimer() {
+        if (timerActive) {
+            setTimeout(() => {
+                totalSeconds++;
+                updateTimerDisplay();
+                incrementTimer();
+            }, 1000);
+        }
+    }
+
+    function resetTimer() {
+        stopTimer();
+        totalSeconds = 0;
+        updateTimerDisplay();
+    }
+
+    function updateTimerDisplay() {
+        let minutes = Math.floor(totalSeconds / 60);
+        let seconds = totalSeconds % 60;
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+        seconds = seconds < 10 ? '0' + seconds : seconds;
+        document.getElementById('time').textContent = `${minutes}:${seconds}`;
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function initializeGame() {
+        const playerWidth = 5;
+        const playerHeight = 20;
+        const playerOffsetX = 5;
+        const playerMidOffsetY = canvas.height / 2 - playerHeight / 2;
+
+        const ballRadius = 3;
+
+
+        player1 = { x: playerOffsetX, y: playerMidOffsetY, width: playerWidth, height: playerHeight, dy: 0, visible: true };
+        player2 = { x: canvas.width - playerWidth - playerOffsetX, y: playerMidOffsetY, width: playerWidth, height: playerHeight, dy: 0, visible: true };
+        let random = Math.random() * (1.25 - 0.75) + 0.75;
+        randomdx = 1 / random;
+        randomdy = 1 * random;
+        console.log(randomdx);
+        console.log(randomdy);
+       
+        ball = { x: canvas.width / 2, y: canvas.height / 2, radius: ballRadius, dx: randomdx, dy: randomdy };
+
+        document.addEventListener('keydown', keyDownHandler);
+        document.addEventListener('keyup', keyUpHandler);
+        updateScoreboard();
+    }
+
+    function keyDownHandler(e) {
+        if (e.key === 'ArrowUp') player2.dy = -paddleSpeed;
+        if (e.key === 'ArrowDown') player2.dy = paddleSpeed;
+        if (e.key === 'w') player1.dy = -paddleSpeed;
+        if (e.key === 's') player1.dy = paddleSpeed;
+    }
+
+    function keyUpHandler(e) {
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') player2.dy = 0;
+        if (e.key === 'w' || e.key === 's') player1.dy = 0;
+    }
+
+    function gameLoop() {
+        if (isGameRunning) {
+            update();
+            render();
+        }
+        gameLoopId = requestAnimationFrame(gameLoop);
+    }
+
+    function update() {
+        player1.y += player1.dy;
+        player2.y += player2.dy;
+
+        if (gameMode === '1vAI') {
+            if (ball.y < player2.y + player2.height / 2) {
+                player2.dy = -paddleSpeed;
+            } else if (ball.y > player2.y + player2.height / 2) {
+                player2.dy = paddleSpeed;
+            } else {
+                player2.dy = 0;
+            }
+        }
+
+        if (player1.y < 0) player1.y = 0;
+        if (player1.y + player1.height > canvas.height) player1.y = canvas.height - player1.height;
+        if (player2.y < 0) player2.y = 0;
+        if (player2.y + player2.height > canvas.height) player2.y = canvas.height - player2.height;
+
+        ball.x += ball.dx;
+        ball.y += ball.dy;
+
+        if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0) {
+            ball.dy *= -1;
+        }
+
+        if (ball.x - ball.radius < player1.x + player1.width && ball.y > player1.y && ball.y < player1.y + player1.height) {
+            ball.dx *= -1;
+            ball.x = player1.x + player1.width + ball.radius;
+            rally++;
+            ballHit = true;
+        } else if (ball.x < player1.x) {
+            score2++;
+            addPoint(rally, playerName2, totalSeconds);
+            resetBall();
+        }
+
+        if (ball.x + ball.radius > player2.x && ball.y > player2.y && ball.y < player2.y + player2.height) {
+            ball.dx *= -1;
+            ball.x = player2.x - ball.radius;
+            rally++;
+            ballHit = true;
+        } else if (ball.x > player2.x + player2.width) {
+            score1++;
+            addPoint(rally, playerName1, totalSeconds);
+            resetBall();
+        }
+
+        updateScoreboard();
+
+        if (score1 >= maxScore) {
+            gameOver(playerName1);
+        }
+        else if (score2 >= maxScore) {
+            gameOver(playerName2);
+        }
+    }
+
+    function resetBall() {
+        let max = 2;
+        let min = 1;
+        ball.x = canvas.width / 2;
+        ball.y = canvas.height / 2;
+        ball.dx *= -1;
+        ball.dy *= -1;
+
+        rally = 0;
+        ballHit = false;
+    }
+
+    function addPoint(rally, scorer, totalSeconds) {
+        let pointData = {
+            rally: rally,
+            scorer: scorer,
+            time: totalSeconds
+        };
+        gameData.points.push(pointData);
+    }
+
+    function buildJson() {
+        gameData.finalScore = {
+            player1: score1,
+            player2: score2,
+        };
+
+        gameData.players = [playerName1, playerName2];
+
+        gameData.endTime = totalSeconds;
+
+        gameData.typeGame = 'Tournament';
+
+        return gameData;
+    }
+
+    function updateScoreboard() {
+        document.getElementById('score1').innerText = score1;
+        document.getElementById('score2').innerText = score2;
+    }
+
+    function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = '#FF6B00';
+        ctx.fillRect(player1.x, player1.y, player1.width, player1.height);
+        ctx.fillRect(player2.x, player2.y, player2.width, player2.height);
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    function increaseSpeed() {
+        ball.dx *= 1.1;
+        ball.dy *= 1.1;
+    }
+
+    function gameOver(winnerName) {
+        isGameRunning = false;
+        stopTimer();
+        cancelAnimationFrame(gameLoopId);
+        clearInterval(speedIntervalId);
+        if (timerId) {
+            clearTimeout(timerId);
+        }
+        if (gameMode !== '1v1v1v1') {
+            let jsonData = buildJson();
+            console.log(JSON.stringify(jsonData, null, 2));
+
+            let winner = winnerName;
+            fetch('/users/submit-game-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(jsonData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            fetch(`/tournament/${tournamentId}/update_playing_status/${matchId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Winner': winner
+                },
+                body: JSON.stringify({ playing: false })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        console.log('Playing status updated successfully');
+                        loadContent(window.location.pathname);
+                    } else {
+                        console.error('Failed to update playing status');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+
+        }
+    }
 
     const contentDiv = document.getElementById('content');
 

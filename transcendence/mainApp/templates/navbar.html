@@ -242,6 +242,9 @@
         </div>
         {% endif %}
     </nav>
+    {% if request.path == '/' %}
+        {% include 'game.html' %}
+    {% endif %}
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {

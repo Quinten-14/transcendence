@@ -343,6 +343,12 @@ def player2auth(request):
             if not pattern.match(username):
                 return JsonResponse({'status': 'error', 'message': 'No special characters allowed except @, -, _.'})
             user = User.objects.get(username=username)
+            if user.email is None or user.email == '':
+                return JsonResponse({'status': 'authentication_failed'})
+            if not user.userprofile:
+                return JsonResponse({'status': 'authentication_failed'})
+            if not user.userprofile._two_factor_secret or user.userprofile._two_factor_secret == '':
+                return JsonResponse({'status': 'authentication_failed'})
             user_profile = UserProfile.objects.get(user=user)
             totp = pyotp.TOTP(user_profile._two_factor_secret)
             otp_code = totp.now()

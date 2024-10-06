@@ -365,11 +365,11 @@
                 {% if match.playing %}
                 {% if match.players.0 != 'AI' and match.players.1 != 'AI' %}
                 <button
-                    onclick="startGame('{{ tournament.id }}', '{{ match_id }}', '{{match.players.0}}', '{{match.players.1}}', '1v1')">Start
+                    onclick="startTournamentGame('{{ tournament.id }}', '{{ match_id }}', '{{match.players.0}}', '{{match.players.1}}', '1v1')">Start
                     Match</button>
                 {% else %}
                 <button
-                    onclick="startGame('{{ tournament.id }}', '{{ match_id }}', '{{match.players.0}}', '{{match.players.1}}', '1vAI')">Start
+                    onclick="startTournamentGame('{{ tournament.id }}', '{{ match_id }}', '{{match.players.0}}', '{{match.players.1}}', '1vAI')">Start
                     Match</button>
                 {% endif %}
                 {% endif %}

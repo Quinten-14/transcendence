@@ -225,7 +225,7 @@
 					<button onclick="startGame('1v1v1v1')">4 Player Pong (Casual only)</button>
 					<button onclick="startGame('1vAI')">1 v AI</button>
 				</div>
-				<a class="tournamentBtn" href="{% url 'hostTournament' %}">Host a tournament</a>
+				<a class="tournamentBtn" href="#" onclick="loadContent('{% url 'hostTournament' %}')">Host a tournament</a>
 			</div>
 		</div>
 		<div id="authMenu" style="display: none;">
@@ -913,10 +913,9 @@
 			loadContent('/');
 		}
 
-		const contentDiv = document.getElementById('content');
-
 		function loadContent(url, addToHistory = true) {
 			document.getElementById('loadingOverlay').style.display = 'block';
+			const contentDiv = document.getElementById('content');
 
 			fetch(url, {
 				headers: {
@@ -930,6 +929,8 @@
 						history.pushState({ url: url }, '', url);
 					}
 					attachEventListeners();
+					attachButtonListeners(); // Re-attach button event listeners
+					executeScripts(contentDiv);
 					document.dispatchEvent(new Event('spaContentLoaded'));
 					document.getElementById('loadingOverlay').style.display = 'none';
 				})
@@ -947,8 +948,34 @@
 					const url = this.getAttribute('data-url');
 					loadContent(url);
 				});
-			})
+			});
 		}
+
+		function attachButtonListeners() {
+			document.querySelectorAll('button').forEach(button => {
+				button.addEventListener('click', function (e) {
+					// Your button click handler logic here
+					console.log('Button clicked:', e.target);
+				});
+			});
+		}
+
+		function executeScripts(element) {
+		    const scripts = element.querySelectorAll('script');
+    		scripts.forEach(script => {
+    		    const newScript = document.createElement('script');
+    		    if (script.src) {
+    		        newScript.src = script.src;
+    		    } else {
+    		        newScript.textContent = script.textContent;
+    		    }
+    		    document.head.appendChild(newScript).parentNode.removeChild(newScript);
+    		});
+		}
+
+		// Initial call to attach event listeners
+		attachEventListeners();
+		attachButtonListeners();
 
 	</script>
 
