@@ -420,25 +420,30 @@ def gameOverview(request, match_id):
 
     match_duration_seconds = match.duration.total_seconds()
 
+    if player2 is None:
+        player2_username = "AI"
+    else:
+        player2_username = player2.username
+
     if longest_goal_streak >= 5:
         titles.append("Onstuitbare Reeks")
-        messages.append(f"{('AI' if not player1 or player1_goals <= player2_goals else player1.username)} ging op een onstuitbare reeks, scoorde {longest_goal_streak} opeenvolgende doelpunten!")
+        messages.append(f"{(player2_username if not player1 or player1_goals <= player2_goals else player1.username)} ging op een onstuitbare reeks, scoorde {longest_goal_streak} opeenvolgende doelpunten!")
 
     if longest_time_between_goals.total_seconds() > 120:
         titles.append("Defensieve Meesterklas")
-        messages.append(f"{('AI' if not player1 or player1_goals <= player2_goals else player1.username)} hield de tegenstander {formatted_time_between_goals} lang van scoren af zonder een doelpunt tegen te krijgen!")
+        messages.append(f"{(player2_username if not player1 or player1_goals <= player2_goals else player1.username)} hield de tegenstander {formatted_time_between_goals} lang van scoren af zonder een doelpunt tegen te krijgen!")
 
     if any(point['time'] >= match_duration_seconds - 60 for point in match.raw_data['points']):
         titles.append("Beslissende Prestatie")
-        messages.append(f"{('AI' if not player1 or player1_goals <= player2_goals else player1.username)} leverde op het beslissende moment, scoorde het winnende doelpunt met minder dan 60 seconden op de klok!")
+        messages.append(f"{(player2_username if not player1 or player1_goals <= player2_goals else player1.username)} leverde op het beslissende moment, scoorde het winnende doelpunt met minder dan 60 seconden op de klok!")
 
     if player1_goals > player2_goals:
         titles.append(f"Dominantie van {('Speler 1' if not player1 else player1.username)}")
-        messages.append(f"{('Speler 1' if not player1 else player1.username)} presteerde beter dan 'AI', won met {player1_goals - player2_goals} doelpunten!")
+        messages.append(f"{('Speler 1' if not player1 else player1.username)} presteerde beter dan {(player2_username)}, won met {player1_goals - player2_goals} doelpunten!")
 
     if player2_goals > player1_goals:
-        titles.append("AI Dominantie")
-        messages.append(f"'AI' presteerde beter dan {('Speler 1' if not player1 else player1.username)}, won met {player2_goals - player1_goals} doelpunten!")
+        titles.append(f"{(player2_username)} Dominantie")
+        messages.append(f"{(player2_username)} presteerde beter dan {('Speler 1' if not player1 else player1.username)}, won met {player2_goals - player1_goals} doelpunten!")
 
     if player1_goals == player2_goals:
         titles.append("Gelijkspel")
@@ -446,7 +451,7 @@ def gameOverview(request, match_id):
 
     if longest_goal_streak >= 3 and longest_goal_streak < 5:
         titles.append("Sterke Reeks")
-        messages.append(f"{('AI' if not player1 or player1_goals <= player2_goals else player1.username)} had een sterke reeks met {longest_goal_streak} opeenvolgende doelpunten!")
+        messages.append(f"{(player2_username if not player1 or player1_goals <= player2_goals else player1.username)} had een sterke reeks met {longest_goal_streak} opeenvolgende doelpunten!")
 
     if longest_goal_streak < 3:
         titles.append("Korte Reeks")
